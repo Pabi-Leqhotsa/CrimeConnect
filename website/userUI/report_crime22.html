@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Crime - CrimeConnect Shield Network</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        .sidebar-icon {
+            position: relative;
+        }
+        .sidebar-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+        .form-radio:checked + .form-radio-label {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex h-screen">
+    <!-- Sidebar Navigation -->
+    <nav class="w-20 md:w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white flex flex-col transition-all duration-300">
+        <div class="p-4 flex items-center justify-center md:justify-start border-b border-gray-700">
+            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-0 md:mr-3">
+                <i data-feather="shield"></i>
+            </div>
+            <h1 class="hidden md:block text-xl font-bold">CrimeConnect</h1>
+        </div>
+        
+        <ul class="flex-1 py-4 space-y-2">
+            <li>
+                <a href="dashboard.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Dashboard">
+                    <i data-feather="home" class="w-5 h-5"></i>
+                    <span class="ml-3 hidden md:block">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="reports_feed.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Reports Feed">
+                    <i data-feather="file-text" class="w-5 h-5"></i>
+                    <span class="ml-3 hidden md:block">Reports Feed</span>
+                </a>
+            </li>
+            <li>
+                <a href="report_crime.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg bg-gray-700" data-tooltip="Report Crime">
+                    <i data-feather="alert-circle" class="w-5 h-5"></i>
+                    <span class="ml-3 hidden md:block">Report Crime</span>
+                </a>
+            </li>
+            <li>
+                <a href="community_chat.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Community Chat">
+                    <i data-feather="message-square" class="w-5 h-5"></i>
+                    <span class="ml-3 hidden md:block">Community Chat</span>
+                </a>
+            </li>
+            <li>
+                <a href="safety_resources.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Safety Resources">
+                    <i data-feather="life-buoy" class="w-5 h-5"></i>
+                    <span class="ml-3 hidden md:block">Safety Resources</span>
+                </a>
+            </li>
+        </ul>
+        
+        <div class="p-4 border-t border-gray-700">
+            <a href="profile.html" class="sidebar-icon flex items-center p-3 rounded-lg hover:bg-gray-700" data-tooltip="Profile">
+                <i data-feather="user" class="w-5 h-5"></i>
+                <span class="ml-3 hidden md:block">Profile</span>
+            </a>
+            <a href="login.html" onclick="handleLogout()" class="sidebar-icon flex items-center p-3 rounded-lg hover:bg-red-700 transition-colors duration-200" data-tooltip="Logout">
+                <i data-feather="log-out" class="w-5 h-5"></i>
+                <span class="ml-3 hidden md:block">Logout</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-6">
+        <div class="max-w-3xl mx-auto">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="bg-red-100 p-3 rounded-full mr-4">
+                            <i data-feather="alert-triangle" class="text-red-500 w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-800">Report a Crime</h1>
+                            <p class="text-gray-600">Help keep your community safe by reporting incidents</p>
+                        </div>
+                    </div>
+
+                    <form id="crime-report-form" class="space-y-6">
+                        <!-- Crime Type - Simple radio buttons -->
+                         <div class="mb-6">
+                            <label for="crimeType" class="block text-sm font-medium text-gray-700 mb-2">Type of Crime *</label>
+                            <select id="crimeType" name="crimeType" class="form-select w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="" disabled selected>Select a crime type</option>
+                                <option value="theft">Theft / Robbery</option>
+                                <option value="assault">Assault / Violence</option>
+                                <option value="burglary">Burglary / Break-in</option>
+                                <option value="vandalism">Vandalism / Damage</option>
+                                <option value="suspicious">Suspicious Activity</option>
+                                <option value="drugs">Drug-related Activity</option>
+                                <option value="traffic">Traffic Violation</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+
+                        <!-- Location - Text field -->
+                        <div>
+                            <label for="location" class="block text-sm font-medium text-gray-700 mb-2">Location *</label>
+                            <input type="text" id="location" name="location" placeholder="Enter street address or landmark" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+
+                        <!-- Area - Dropdown menu -->
+                        <div>
+                            <label for="area" class="block text-sm font-medium text-gray-700 mb-2">Area *</label>
+                            <select id="area" name="area" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="">Select your area</option>
+                                <option value="Cape Town CBD">Cape Town CBD</option>
+                                <option value="Atlantic Seaboard">Atlantic Seaboard</option>
+                                <option value="Southern Suburbs">Southern Suburbs</option>
+                                <option value="Northern Suburbs">Northern Suburbs</option>
+                                <option value="Helderberg">Helderberg</option>
+                                <option value="West Coast">West Coast</option>
+                                <option value="Overberg">Overberg</option>
+                                <option value="Garden Route">Garden Route</option>
+                                <option value="Central Karoo">Central Karoo</option>
+                            </select>
+                        </div>
+
+                        <!-- Date and Time - Date and time pickers -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="date" class="block text-sm font-medium text-gray-700 mb-2">Date *</label>
+                                <input type="date" id="date" name="date" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-blue-500 focus:border-blue-500" required>
+                            </div>
+                            <div>
+                                <label for="time" class="block text-sm font-medium text-gray-700 mb-2">Time *</label>
+                                <input type="time" id="time" name="time" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-blue-500 focus:border-blue-500" required>
+                            </div>
+                        </div>
+
+                        <!-- Description - Text field -->
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+                            <textarea id="description" name="description" rows="4" placeholder="Please describe what happened..." class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-blue-500 focus:border-blue-500" required></textarea>
+                        </div>
+
+                        <!-- Urgency - Simple radio buttons -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Urgency Level *</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="urgency" value="low" class="h-4 w-4 text-blue-600" required>
+                                    <span class="ml-2">Low - No immediate danger</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="urgency" value="medium" class="h-4 w-4 text-blue-600">
+                                    <span class="ml-2">Medium - Concerning situation</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="urgency" value="high" class="h-4 w-4 text-blue-600">
+                                    <span class="ml-2">High - Potentially dangerous</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="urgency" value="emergency" class="h-4 w-4 text-blue-600">
+                                    <span class="ml-2">Emergency - Immediate danger</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Anonymous Reporting - Checkbox -->
+                        <div class="flex items-center">
+                            <input type="checkbox" id="anonymous" name="anonymous" class="h-4 w-4 text-blue-600">
+                            <label for="anonymous" class="ml-2 text-sm font-medium text-gray-700">
+                                Report Anonymously
+                            </label>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="pt-4">
+                            <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center transition-colors">
+                                <i data-feather="alert-circle" class="w-5 h-5 mr-2"></i> Submit Crime Report
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Emergency Notice -->
+                    <div class="mt-8 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i data-feather="alert-triangle" class="h-5 w-5 text-red-500"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">In case of emergency</h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    <p>If this is an active emergency or someone is in immediate danger, please call emergency services immediately at <strong>10111</strong>.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        feather.replace();
+        
+        // Initialize form with current date and time
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            document.getElementById('date').value = now.toISOString().split('T')[0];
+            document.getElementById('time').value = now.toTimeString().slice(0,5);
+        });
+        
+        document.getElementById('crime-report-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const crimeType = document.querySelector('input[name="crime_type"]:checked')?.value;
+            const location = document.getElementById('location').value;
+            const area = document.getElementById('area').value;
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            const description = document.getElementById('description').value;
+            const urgency = document.querySelector('input[name="urgency"]:checked')?.value;
+            const anonymous = document.getElementById('anonymous').checked;
+            
+            // Validate required fields
+            if (!crimeType || !location || !area || !date || !time || !description || !urgency) {
+                alert('Please fill in all required fields marked with *');
+                return;
+            }
+            
+            // Create report object
+            const report = {
+                id: Date.now(),
+                type: crimeType,
+                location: location,
+                area: area,
+                description: description,
+                urgency: urgency,
+                date: `${date} ${time}`,
+                timestamp: new Date().toISOString(),
+                anonymous: anonymous
+            };
+            
+            // Save report to localStorage
+            saveReport(report);
+            
+            alert(`Crime report submitted successfully!\n\nReport ID: #${report.id}\nType: ${crimeType}\nLocation: ${location}\n\nThank you for helping keep the community safe.`);
+            
+            // Reset form
+            this.reset();
+            
+            // Set current date and time again
+            const now = new Date();
+            document.getElementById('date').value = now.toISOString().split('T')[0];
+            document.getElementById('time').value = now.toTimeString().slice(0,5);
+        });
+        
+        function saveReport(report) {
+            // Get existing reports or initialize empty array
+            const existingReports = JSON.parse(localStorage.getItem('crimeReports') || '[]');
+            
+            // Add new report
+            existingReports.unshift(report);
+            
+            // Save back to localStorage
+            localStorage.setItem('crimeReports', JSON.stringify(existingReports));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Chat - CrimeConnect Shield Network</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        .sidebar-icon {
+            position: relative;
+        }
+        .sidebar-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+        .room-item {
+            transition: all 0.2s ease;
+        }
+        .room-item:hover {
+            background-color: #f3f4f6;
+        }
+        .message {
+            max-width: 75%;
+        }
+        .message.received {
+            border-top-left-radius: 0;
+        }
+        .message.sent {
+            border-top-right-radius: 0;
+        }
+        .messages-container {
+            scrollbar-width: thin;
+            scrollbar-color: #9ca3af #f3f4f6;
+        }
+        .messages-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .messages-container::-webkit-scrollbar-track {
+            background: #f3f4f6;
+        }
+        .messages-container::-webkit-scrollbar-thumb {
+            background-color: #9ca3af;
+            border-radius: 3px;
+        }
+        .safety-tip {
+            border-left: 4px solid #10b981;
+        }
+        .reported-message {
+            background-color: #fef3f2;
+            border: 1px solid #fecaca;
+        }
+        .admin-moderated {
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex h-screen">
+    <!-- Sidebar Navigation -->
+   <nav id="sidebar" class="w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white flex flex-col transition-all duration-300">
+      <div class="p-4 flex items-center justify-start border-b border-gray-700">
+        <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+            <i data-feather="shield"></i>
+        </div>
+        <h1 class="text-xl font-bold sidebar-text">CrimeConnect</h1>
+      </div>
+
+    <!-- Collapsible Toggle Button -->
+       <div class="px-4 py-2 border-b border-gray-700 flex items-center justify-center md:justify-end">
+        <button id="toggleSidebar" class="text-white focus:outline-none bg-gray-700 hover:bg-gray-600 rounded-full p-1 transition">
+            <i data-feather="chevron-left" class="w-5 h-5"></i>
+        </button>
+       </div>
+    
+
+       
+    <ul class="flex-1 py-4 space-y-2">
+        <li>
+            <a href="dashboard.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Dashboard">
+                <i data-feather="home" class="w-5 h-5"></i>
+                <span class="ml-3 sidebar-text">Dashboard</span>
+            </a>
+        </li>
+        <li>
+            <a href="reports_feed.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Reports Feed">
+                <i data-feather="file-text" class="w-5 h-5"></i>
+                <span class="ml-3 sidebar-text">Reports Feed</span>
+            </a>
+        </li>
+        <li>
+            <a href="report_crime.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg bg-gray-700" data-tooltip="Report Crime">
+                <i data-feather="alert-circle" class="w-5 h-5"></i>
+                <span class="ml-3 sidebar-text">Report Crime</span>
+            </a>
+        </li>
+        <li>
+            <a href="community_chat.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Community Chat">
+                <i data-feather="message-square" class="w-5 h-5"></i>
+                <span class="ml-3 sidebar-text">Community Chat</span>
+            </a>
+        </li>
+        <li>
+            <a href="safety_resources.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Safety Resources">
+                <i data-feather="life-buoy" class="w-5 h-5"></i>
+                <span class="ml-3 sidebar-text">Safety Resources</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="p-4 border-t border-gray-700">
+        <a href="profile.html" class="sidebar-icon flex items-center p-3 rounded-lg hover:bg-gray-700" data-tooltip="Profile">
+            <i data-feather="user" class="w-5 h-5"></i>
+            <span class="ml-3 sidebar-text">Profile</span>
+        </a>
+        <a href="login.html" onclick="handleLogout()" class="sidebar-icon flex items-center p-3 rounded-lg hover:bg-red-700 transition-colors duration-200" data-tooltip="Logout">
+            <i data-feather="log-out" class="w-5 h-5"></i>
+            <span class="ml-3 sidebar-text">Logout</span>
+        </a>
+    </div>
+</nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto">
+        <div class="h-full flex flex-col max-w-7xl mx-auto">
+            <!-- Chat Header -->
+            <div class="bg-white p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 p-3 rounded-full mr-4">
+                            <i data-feather="message-square" class="text-blue-500 w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-800">Community Chat</h1>
+                            <p class="text-gray-600">Connect with neighbors, share safety tips, and discuss local incidents</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="openSafetyTipModal()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+                            <i data-feather="lightbulb" class="w-4 h-4 mr-2"></i> Submit Safety Tip
+                        </button>
+                        <button onclick="openCreateRoomModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+                            <i data-feather="plus" class="w-4 h-4 mr-2"></i> Create Room
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-1 overflow-hidden">
+                <!-- Left Sidebar - Chat Rooms & Filters -->
+                <div class="w-full md:w-80 bg-white border-r border-gray-200 flex flex-col">
+                    <!-- Filter Section -->
+                    <div class="p-4 border-b border-gray-200">
+                        <h3 class="font-semibold text-gray-700 mb-2 flex items-center">
+                            <i data-feather="filter" class="w-4 h-4 mr-2"></i> Filter Rooms
+                        </h3>
+                        <div class="space-y-2">
+                            <select id="area-filter" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500">
+                                <option value="all">All Areas</option>
+                                <option value="north">North Area</option>
+                                <option value="south">South Area</option>
+                                <option value="east">East Area</option>
+                                <option value="west">West Area</option>
+                                <option value="central">Central Area</option>
+                            </select>
+                            <select id="category-filter" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500">
+                                <option value="all">All Categories</option>
+                                <option value="safety">Safety Tips</option>
+                                <option value="incidents">Incident Reports</option>
+                                <option value="watch">Neighborhood Watch</option>
+                                <option value="emergency">Emergency Alerts</option>
+                                <option value="general">General Discussion</option>
+                            </select>
+                            <button onclick="applyFilters()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-sm transition-colors">
+                                Apply Filters
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Room List Header -->
+                    <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                        <h2 class="font-semibold text-lg">Available Rooms</h2>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full" id="room-count">12 rooms</span>
+                    </div>
+
+                    <!-- Room List -->
+                    <div class="flex-1 overflow-y-auto" id="room-list">
+                        <!-- Area-Specific Rooms -->
+                        <div class="p-3 bg-gray-50 border-b border-gray-200">
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Area-Specific Forums</h4>
+                        </div>
+                        
+                        <div class="room-item p-4 border-b border-gray-200 cursor-pointer bg-gray-50" onclick="selectRoom('general')">
+                            <div class="flex items-center">
+                                <div class="bg-blue-100 p-3 rounded-full mr-3">
+                                    <i data-feather="home" class="text-blue-500 w-4 h-4"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-medium">General Community</h3>
+                                    <div class="flex items-center mt-1">
+                                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded mr-2">All Areas</span>
+                                        <span class="text-xs text-gray-500">245 members</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">General discussions and community updates</p>
+                                </div>
+                                <div class="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    3
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="room-item p-4 border-b border-gray-200 cursor-pointer" onclick="selectRoom('north')">
+                            <div class="flex items-center">
+                                <div class="bg-purple-100 p-3 rounded-full mr-3">
+                                    <i data-feather="map-pin" class="text-purple-500 w-4 h-4"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-medium">North Area Watch</h3>
+                                    <div class="flex items-center mt-1">
+                                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded mr-2">North</span>
+                                        <span class="text-xs text-gray-500">76 members</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">Incident reports and safety discussions for North Area</p>
+                                </div>
+                                <div class="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    12
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="room-item p-4 border-b border-gray-200 cursor-pointer" onclick="selectRoom('south')">
+                            <div class="flex items-center">
+                                <div class="bg-purple-100 p-3 rounded-full mr-3">
+                                    <i data-feather="map-pin" class="text-purple-500 w-4 h-4"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-medium">South Area Watch</h3>
+                                    <div class="flex items-center mt-1">
+                                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded mr-2">South</span>
+                                        <span class="text-xs text-gray-500">54 members</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">Community safety for South Area residents</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Category-Specific Rooms -->
+                        <div class="p-3 bg-gray-50 border-b border-gray-200 mt-2">
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Category Forums</h4>
+                        </div>
+
+                        <div class="room-item p-4 border-b border-gray-200 cursor-pointer" onclick="selectRoom('safety')">
+                            <div class="flex items-center">
+                                <div class="bg-green-100 p-3 rounded-full mr-3">
+                                    <i data-feather="shield" class="text-green-500 w-4 h-4"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-medium">Safety Tips & Advice</h3>
+                                    <div class="flex items-center mt-1">
+                                        <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded mr-2">Safety</span>
+                                        <span class="text-xs text-gray-500">189 members</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">Share and discuss safety tips for the community</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="room-item p-4 border-b border-gray-200 cursor-pointer" onclick="selectRoom('emergency')">
+                            <div class="flex items-center">
+                                <div class="bg-red-100 p-3 rounded-full mr-3">
+                                    <i data-feather="alert-triangle" class="text-red-500 w-4 h-4"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-medium">Emergency Alerts</h3>
+                                    <div class="flex items-center mt-1">
+                                        <span class="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded mr-2">Emergency</span>
+                                        <span class="text-xs text-gray-500">All members</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">Critical emergency notifications and updates</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="room-item p-4 border-b border-gray-200 cursor-pointer" onclick="selectRoom('incidents')">
+                            <div class="flex items-center">
+                                <div class="bg-orange-100 p-3 rounded-full mr-3">
+                                    <i data-feather="alert-circle" class="text-orange-500 w-4 h-4"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-medium">Incident Reports</h3>
+                                    <div class="flex items-center mt-1">
+                                        <span class="text-xs bg-orange-100 text-orange-800 px-2 py-0.5 rounded mr-2">Incidents</span>
+                                        <span class="text-xs text-gray-500">89 members</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">Discuss and verify recent incident reports</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Rooms -->
+                    <div class="p-4 border-t border-gray-200">
+                        <div class="flex items-center">
+                            <div class="relative flex-1">
+                                <input type="text" id="room-search" placeholder="Search rooms..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                <i data-feather="search" class="absolute left-3 top-2.5 text-gray-400 w-4 h-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Chat Area -->
+                <div class="flex-1 flex flex-col bg-gray-50">
+                    <!-- Chat Header -->
+                    <div class="p-4 border-b border-gray-200 bg-white">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="bg-blue-100 p-3 rounded-full mr-3">
+                                    <i data-feather="home" class="text-blue-500 w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium" id="current-room-name">General Community</h3>
+                                    <p class="text-sm text-gray-500" id="current-room-info">250 members • Public chat • All Areas</p>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="openRoomSettings()" class="p-2 rounded-full hover:bg-gray-100 tooltip" data-tooltip="Settings">
+                                    <i data-feather="settings" class="w-4 h-4 text-gray-500"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Messages Container -->
+                    <div class="flex-1 overflow-y-auto messages-container p-4">
+                        <div class="space-y-4" id="messages-list">
+                            <!-- System Message -->
+                            <div class="text-center">
+                                <span class="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
+                                    Today, June 15
+                                </span>
+                            </div>
+
+                            <!-- Safety Tip Message -->
+                            <div class="message received bg-white p-4 rounded-lg shadow-sm safety-tip">
+                                <div class="flex items-center justify-between mb-1">
+                                    <div class="flex items-center">
+                                        <span class="font-medium text-sm">Safety Officer</span>
+                                        <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded ml-2">Safety Tip</span>
+                                    </div>
+                                    <span class="text-xs text-gray-500">10:15 AM</span>
+                                </div>
+                                <p class="text-gray-700">Remember to always lock your vehicles and remove valuables when parked in public areas. Recent reports show increased vehicle break-ins in the North Area.</p>
+                                <div class="flex justify-between items-center mt-2">
+                                    <span class="text-xs text-green-600 flex items-center">
+                                        <i data-feather="thumbs-up" class="w-3 h-3 mr-1"></i> 12 helpful votes
+                                    </span>
+                                    <button onclick="reportMessage(1)" class="text-xs text-gray-500 hover:text-red-500 flex items-center">
+                                        <i data-feather="flag" class="w-3 h-3 mr-1"></i> Report
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Received Message -->
+                            <div class="message received bg-white p-4 rounded-lg shadow-sm max-w-xs">
+                                <div class="flex items-center justify-between mb-1">
+                                    <div class="flex items-center">
+                                        <span class="font-medium text-sm">Sarah M.</span>
+                                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded ml-2">North Area</span>
+                                    </div>
+                                    <span class="text-xs text-gray-500">10:30 AM</span>
+                                </div>
+                                <p class="text-gray-700">Has anyone noticed suspicious activity near Oak Park lately? Saw someone unfamiliar taking photos yesterday evening.</p>
+                                <div class="flex justify-end mt-2">
+                                    <button onclick="reportMessage(2)" class="text-xs text-gray-500 hover:text-red-500 flex items-center">
+                                        <i data-feather="flag" class="w-3 h-3 mr-1"></i> Report
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Sent Message -->
+                            <div class="message sent ml-auto bg-blue-500 text-white p-4 rounded-lg shadow-sm max-w-xs">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-medium text-sm">You</span>
+                                    <span class="text-xs text-blue-100">10:32 AM</span>
+                                </div>
+                                <p>Yes, I reported it this morning. There was a car with broken windows near the playground.</p>
+                            </div>
+
+                            <!-- Received Message -->
+                            <div class="message received bg-white p-4 rounded-lg shadow-sm max-w-xs">
+                                <div class="flex items-center justify-between mb-1">
+                                    <div class="flex items-center">
+                                        <span class="font-medium text-sm">Mike T. (Block Captain)</span>
+                                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded ml-2">Verified</span>
+                                    </div>
+                                    <span class="text-xs text-gray-500">10:35 AM</span>
+                                </div>
+                                <p class="text-gray-700">Thanks for reporting! I've alerted the neighborhood watch. Everyone please stay vigilant and report anything unusual.</p>
+                                <div class="flex justify-end mt-2">
+                                    <button onclick="reportMessage(3)" class="text-xs text-gray-500 hover:text-red-500 flex items-center">
+                                        <i data-feather="flag" class="w-3 h-3 mr-1"></i> Report
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Alert Message -->
+                            <div class="message received bg-yellow-50 border border-yellow-200 p-4 rounded-lg shadow-sm">
+                                <div class="flex items-center justify-between mb-1">
+                                    <div class="flex items-center">
+                                        <span class="font-medium text-sm text-yellow-800">Community Alert</span>
+                                        <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded ml-2">Emergency</span>
+                                    </div>
+                                    <span class="text-xs text-yellow-600">10:40 AM</span>
+                                </div>
+                                <p class="text-yellow-800"><i data-feather="alert-triangle" class="w-4 h-4 inline mr-1"></i> URGENT: Power outage reported in North Area. Emergency services deployed. Avoid the area if possible.</p>
+                            </div>
+
+                            <!-- Reported Message (Example) -->
+                            <div class="message received bg-white p-4 rounded-lg shadow-sm max-w-xs reported-message">
+                                <div class="flex items-center justify-between mb-1">
+                                    <div class="flex items-center">
+                                        <span class="font-medium text-sm">User123</span>
+                                    </div>
+                                    <span class="text-xs text-gray-500">10:42 AM</span>
+                                </div>
+                                <p class="text-gray-700">This message has been reported for inappropriate content and is under review by moderators.</p>
+                                <div class="flex justify-between items-center mt-2">
+                                    <span class="text-xs text-red-600 flex items-center">
+                                        <i data-feather="alert-circle" class="w-3 h-3 mr-1"></i> Under Review
+                                    </span>
+                                    <button class="text-xs text-blue-500 hover:text-blue-700 flex items-center">
+                                        <i data-feather="eye" class="w-3 h-3 mr-1"></i> View Details
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Admin Moderated Message -->
+                            <div class="message received bg-white p-4 rounded-lg shadow-sm max-w-xs admin-moderated">
+                                <div class="flex items-center justify-between mb-1">
+                                    <div class="flex items-center">
+                                        <span class="font-medium text-sm">Admin</span>
+                                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded ml-2">Moderator</span>
+                                    </div>
+                                    <span class="text-xs text-gray-500">10:45 AM</span>
+                                </div>
+                                <p class="text-gray-700">A message from User456 has been removed for violating community guidelines. Please remember to keep discussions respectful.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Message Input -->
+                    <div class="p-4 border-t border-gray-200 bg-white">
+                        <div class="flex items-center mb-2">
+                            <button class="p-2 rounded-full hover:bg-gray-100 mr-2 tooltip" data-tooltip="Attach File" onclick="attachFile()">
+                                <i data-feather="paperclip" class="w-5 h-5 text-gray-500"></i>
+                            </button>
+                            <button class="p-2 rounded-full hover:bg-gray-100 mr-2 tooltip" data-tooltip="Add Safety Tip" onclick="markAsSafetyTip()">
+                                <i data-feather="lightbulb" class="w-5 h-5 text-gray-500"></i>
+                            </button>
+                            <button class="p-2 rounded-full hover:bg-gray-100 mr-2 tooltip" data-tooltip="Add Location" onclick="addLocation()">
+                                <i data-feather="map-pin" class="w-5 h-5 text-gray-500"></i>
+                            </button>
+                            <div class="flex-1">
+                                <input type="text" id="message-input" placeholder="Type your message..." class="w-full border border-gray-300 rounded-full py-2 px-4 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <button onclick="sendMessage()" class="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 ml-2">
+                                <i data-feather="send" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <div class="flex justify-between items-center text-xs text-gray-500">
+                            <div id="message-type-indicator">Normal message</div>
+                            <div class="flex space-x-2">
+                                <button class="p-1 rounded-full hover:bg-gray-100">
+                                    <i data-feather="smile" class="w-4 h-4 text-gray-500"></i>
+                                </button>
+                                <button class="p-1 rounded-full hover:bg-gray-100">
+                                    <i data-feather="camera" class="w-4 h-4 text-gray-500"></i>
+                                </button>
+                                <button class="p-1 rounded-full hover:bg-gray-100">
+                                    <i data-feather="mic" class="w-4 h-4 text-gray-500"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Safety Tip Modal -->
+    <div id="safety-tip-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold">Submit Safety Tip</h3>
+                <button onclick="closeSafetyTipModal()" class="text-gray-500 hover:text-gray-700">
+                    <i data-feather="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form id="safety-tip-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tip Title</label>
+                    <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Brief title for your safety tip">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Safety Tip</label>
+                    <textarea class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500" rows="4" placeholder="Share your safety advice or precaution..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option>Home Security</option>
+                        <option>Personal Safety</option>
+                        <option>Vehicle Safety</option>
+                        <option>Digital Safety</option>
+                        <option>Emergency Preparedness</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeSafetyTipModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">Submit Tip</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Report Message Modal -->
+    <div id="report-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold">Report Inappropriate Content</h3>
+                <button onclick="closeReportModal()" class="text-gray-500 hover:text-gray-700">
+                    <i data-feather="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form id="report-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Reason for Reporting</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="radio" name="report-reason" value="harassment" class="mr-2">
+                            <span>Harassment or bullying</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="report-reason" value="false-info" class="mr-2">
+                            <span>False information</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="report-reason" value="inappropriate" class="mr-2">
+                            <span>Inappropriate content</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="report-reason" value="spam" class="mr-2">
+                            <span>Spam or advertising</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="report-reason" value="other" class="mr-2">
+                            <span>Other</span>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Additional Details (Optional)</label>
+                    <textarea class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500" rows="3" placeholder="Please provide any additional context..."></textarea>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeReportModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADDED: JavaScript files -->
+    <script> // CrimeConnect Shield Network - Core Authentication & Navigation
+// Using existing HTML structure without modifications
+
+// Authentication Management
+function checkAuth() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const isGuest = localStorage.getItem('guestMode') === 'true';
+    
+    console.log('Auth status:', { isLoggedIn, isGuest });
+    
+    // If neither is true, redirect to login
+    if (!isLoggedIn && !isGuest) {
+        alert('Please log in to access this page.');
+        window.location.href = 'login.html';
+        return false;
+    }
+    
+    return true;
+}
+
+function handleLogout() {
+    if (confirm('Are you sure you want to log out?')) {
+        // Clear everything
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Redirect to logout page
+        window.location.href = 'logout.html';
+    }
+}
+
+function debugAuth() {
+    const allStorage = {};
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        allStorage[key] = localStorage.getItem(key);
+    }
+    alert('LocalStorage contents:\n' + JSON.stringify(allStorage, null, 2));
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    feather.replace();
+    
+    // Check auth on protected pages (all pages except login, logout, signup, and home)
+    const currentPage = window.location.pathname.split('/').pop();
+    const publicPages = ['login.html', 'logout.html', 'signup.html', 'home_page.html', 'index.html'];
+    
+    if (!publicPages.includes(currentPage)) {
+        checkAuth();
+    }
+    
+    // Add logout functionality to all logout buttons
+    document.querySelectorAll('[onclick="handleLogout()"]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleLogout();
+        });
+    });
+});
+
+// Utility functions
+function triggerEmergency() {
+    if (confirm(' Are you in immediate danger?\n\nThis will alert emergency services and nearby community members.')) {
+        alert('Emergency alert activated! Help is on the way.');
+    }
+}
+
+function callEmergency(number) {
+    if (confirm(`Call ${number}?`)) {
+        alert(`Calling ${number}...\n\nIn a real app, this would initiate a phone call.`);
+    }
+}
+
+// Login function for login page
+function handleLogin(event) {
+    if (event) event.preventDefault();
+    
+    const email = document.getElementById('email')?.value;
+    const password = document.getElementById('password')?.value;
+    const rememberMe = document.getElementById('remember-me')?.checked || false;
+
+    // Basic validation
+    if (!email || !password) {
+        alert('Please fill in all fields');
+        return;
+    }
+
+    // Show loading state
+    const submitBtn = document.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i data-feather="loader" class="w-5 h-5 mr-2 animate-spin"></i>Signing In...';
+        feather.replace();
+    }
+
+    // Simulate API call
+    setTimeout(() => {
+        // Set login state
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userEmail', email);
+        localStorage.removeItem('guestMode');
+        
+        alert('Login successful! Redirecting to dashboard...');
+        if (submitBtn) submitBtn.innerHTML = originalText;
+        feather.replace();
+        window.location.href = 'dashboard.html';
+    }, 1500);
+}</script>
+    <script> // Community Chat Functionality - Using existing HTML structure
+
+let currentRoom = 'general';
+let isSafetyTip = false;
+let reportedMessageId = null;
+
+function selectRoom(roomId) {
+    currentRoom = roomId;
+    
+    document.querySelectorAll('.room-item').forEach(item => {
+        item.classList.remove('bg-gray-50');
+    });
+    event.currentTarget.classList.add('bg-gray-50');
+    
+    const roomNames = {
+        'general': 'General Community',
+        'north': 'North Area Watch',
+        'south': 'South Area Watch',
+        'safety': 'Safety Tips & Advice',
+        'emergency': 'Emergency Alerts',
+        'incidents': 'Incident Reports'
+    };
+    
+    const roomInfo = {
+        'general': '245 members • Public chat • All Areas',
+        'north': '76 members • North Area',
+        'south': '54 members • South Area',
+        'safety': '189 members • Safety Category',
+        'emergency': 'All members • Emergency Category',
+        'incidents': '89 members • Incidents Category'
+    };
+    
+    document.getElementById('current-room-name').textContent = roomNames[roomId] || 'Unknown Room';
+    document.getElementById('current-room-info').textContent = roomInfo[roomId] || '';
+    
+    console.log(`Switched to room: ${roomId}`);
+}
+
+function sendMessage() {
+    const messageInput = document.getElementById('message-input');
+    const messageText = messageInput.value.trim();
+    
+    if (!messageText) return;
+    
+    const messagesContainer = document.getElementById('messages-list');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message sent ml-auto bg-blue-500 text-white p-4 rounded-lg shadow-sm max-w-xs';
+    
+    const now = new Date();
+    const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    
+    messageDiv.innerHTML = `
+        <div class="flex items-center justify-between mb-1">
+            <span class="font-medium text-sm">You</span>
+            <span class="text-xs text-blue-100">${timeString}</span>
+        </div>
+        <p>${messageText}</p>
+    `;
+    
+    messagesContainer.appendChild(messageDiv);
+    messageInput.value = '';
+    
+    const messagesContainerEl = document.querySelector('.messages-container');
+    messagesContainerEl.scrollTop = messagesContainerEl.scrollHeight;
+}
+
+function reportMessage(messageId) {
+    reportedMessageId = messageId;
+    document.getElementById('report-modal').classList.remove('hidden');
+}
+
+function closeReportModal() {
+    document.getElementById('report-modal').classList.add('hidden');
+    reportedMessageId = null;
+}
+
+function openSafetyTipModal() {
+    document.getElementById('safety-tip-modal').classList.remove('hidden');
+}
+
+function closeSafetyTipModal() {
+    document.getElementById('safety-tip-modal').classList.add('hidden');
+}
+
+function openCreateRoomModal() {
+    alert('Create room functionality would open here');
+}
+
+function openRoomSettings() {
+    alert('Room settings would open here');
+}
+
+function applyFilters() {
+    const areaFilter = document.getElementById('area-filter').value;
+    const categoryFilter = document.getElementById('category-filter').value;
+    
+    alert(`Filters applied:\nArea: ${areaFilter}\nCategory: ${categoryFilter}`);
+}
+
+function markAsSafetyTip() {
+    isSafetyTip = !isSafetyTip;
+    const indicator = document.getElementById('message-type-indicator');
+    indicator.textContent = isSafetyTip ? 'Safety tip message' : 'Normal message';
+    indicator.className = isSafetyTip ? 'text-green-600 font-medium' : 'text-gray-500';
+}
+
+function attachFile() {
+    alert('File attachment functionality would open here');
+}
+
+function addLocation() {
+    alert('Location sharing functionality would open here');
+}
+
+// Initialize chat
+document.addEventListener('DOMContentLoaded', function() {
+    const messagesContainer = document.querySelector('.messages-container');
+    if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
+    const messageInput = document.getElementById('message-input');
+    if (messageInput) {
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    }
+    
+    const safetyTipForm = document.getElementById('safety-tip-form');
+    if (safetyTipForm) {
+        safetyTipForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Safety tip submitted successfully!');
+            closeSafetyTipModal();
+        });
+    }
+    
+    const reportForm = document.getElementById('report-form');
+    if (reportForm) {
+        reportForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Report submitted. Thank you for helping keep the community safe.');
+            closeReportModal();
+        });
+    }
+});</script>
+    <script>
+        feather.replace();
+        
+        // Auto-scroll messages
+        const messagesContainer = document.querySelector('.messages-container');
+        if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // Add tooltips
+        document.querySelectorAll('.tooltip').forEach(element => {
+            element.addEventListener('mouseenter', function() {
+                const tooltip = document.createElement('div');
+                tooltip.className = 'absolute bg-black text-white text-xs py-1 px-2 rounded-md -mt-8';
+                tooltip.textContent = this.getAttribute('data-tooltip');
+                this.appendChild(tooltip);
+            });
+            
+            element.addEventListener('mouseleave', function() {
+                const tooltip = this.querySelector('div');
+                if (tooltip) {
+                    this.removeChild(tooltip);
+                }
+            });
+        });
+        // Sidebar Collapse Functionality
+        document.addEventListener("DOMContentLoaded", () => {
+            feather.replace();
+            const toggleButton = document.getElementById("toggleSidebar");
+            const sidebar = document.getElementById("sidebar");
+            const sidebarTexts = sidebar.querySelectorAll(".sidebar-text");
+            const icon = toggleButton.querySelector("i");
+            toggleButton.addEventListener("click", () => {
+                sidebar.classList.toggle("collapsed");
+                if (sidebar.classList.contains("collapsed")) {
+                    sidebar.style.width = "4rem";
+                    sidebarTexts.forEach(text => text.classList.add("hidden"));
+                    icon.setAttribute("data-feather", "chevron-right");
+                } else {
+                    sidebar.style.width = "16rem";
+                    sidebarTexts.forEach(text => text.classList.remove("hidden"));
+                    icon.setAttribute("data-feather", "chevron-left");
+                }
+
+                feather.replace();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - CrimeConnect Shield Network</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        .sidebar-icon {
+            position: relative;
+        }
+        .sidebar-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+        .profile-section {
+            display: none;
+        }
+        .profile-section.active {
+            display: block;
+        }
+        .nav-btn.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #10b981;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .emergency-contact {
+            transition: all 0.2s ease;
+        }
+        .emergency-contact:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* ADDED: Collapsible sidebar styles */
+        .sidebar-collapsed {
+            width: 5rem !important;
+        }
+        .sidebar-collapsed .sidebar-text {
+            display: none !important;
+        }
+        .sidebar-collapsed .logo-text {
+            display: none !important;
+        }
+        .toggle-btn {
+            transition: all 0.3s ease;
+        }
+        .toggle-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        nav {
+            transition: width 0.3s ease;
+        }
+        
+        /* Dark mode styles */
+        .dark-mode {
+            background-color: #1f2937;
+            color: #f9fafb;
+        }
+        .dark-mode .bg-white {
+            background-color: #374151;
+        }
+        .dark-mode .text-gray-800 {
+            color: #f9fafb;
+        }
+        .dark-mode .text-gray-600 {
+            color: #d1d5db;
+        }
+        .dark-mode .text-gray-500 {
+            color: #9ca3af;
+        }
+        .dark-mode .border-gray-200 {
+            border-color: #4b5563;
+        }
+        .dark-mode .border-gray-300 {
+            border-color: #6b7280;
+        }
+        .dark-mode input,
+        .dark-mode select,
+        .dark-mode textarea {
+            background-color: #4b5563;
+            color: #f9fafb;
+            border-color: #6b7280;
+        }
+        .dark-mode .bg-gray-100 {
+            background-color: #4b5563;
+        }
+        .dark-mode .bg-gray-50 {
+            background-color: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex h-screen">
+    <!-- Sidebar Navigation -->
+    <nav class="w-20 md:w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white flex flex-col transition-all duration-300">
+        <div class="p-4 flex items-center justify-center md:justify-start border-b border-gray-700">
+            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-0 md:mr-3">
+                <i data-feather="shield"></i>
+            </div>
+            <h1 class="logo-text hidden md:block text-xl font-bold">CrimeConnect</h1>
+        </div>
+        
+        <!-- ADDED: Toggle Button -->
+        <div class="p-2 border-b border-gray-700 flex justify-center md:justify-end">
+            <button id="sidebar-toggle" class="toggle-btn p-2 rounded-lg hover:bg-gray-700 text-white">
+                <i data-feather="chevron-left" class="w-4 h-4"></i>
+            </button>
+        </div>
+        
+        <ul class="flex-1 py-4 space-y-2">
+            <li>
+                <a href="dashboard.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Dashboard">
+                    <i data-feather="home" class="w-5 h-5"></i>
+                    <span class="sidebar-text ml-3 hidden md:block">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="reports_feed.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Reports Feed">
+                    <i data-feather="file-text" class="w-5 h-5"></i>
+                    <span class="sidebar-text ml-3 hidden md:block">Reports Feed</span>
+                </a>
+            </li>
+            <li>
+                <a href="report_crime.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Report Crime">
+                    <i data-feather="alert-circle" class="w-5 h-5"></i>
+                    <span class="sidebar-text ml-3 hidden md:block">Report Crime</span>
+                </a>
+            </li>
+            <li>
+                <a href="community_chat.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Community Chat">
+                    <i data-feather="message-square" class="w-5 h-5"></i>
+                    <span class="sidebar-text ml-3 hidden md:block">Community Chat</span>
+                </a>
+            </li>
+            <li>
+                <a href="safety_resources.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Safety Resources">
+                    <i data-feather="life-buoy" class="w-5 h-5"></i>
+                    <span class="sidebar-text ml-3 hidden md:block">Safety Resources</span>
+                </a>
+            </li>
+        </ul>
+        
+        <div class="p-4 border-t border-gray-700">
+            <a href="profile.html" class="sidebar-icon flex items-center p-3 rounded-lg bg-gray-700" data-tooltip="Profile">
+                <i data-feather="user" class="w-5 h-5"></i>
+                <span class="sidebar-text ml-3 hidden md:block">Profile</span>
+            </a>
+            <a href="login.html" onclick="handleLogout()" class="sidebar-icon flex items-center p-3 rounded-lg hover:bg-red-700 transition-colors duration-200" data-tooltip="Logout">
+                <i data-feather="log-out" class="w-5 h-5"></i>
+                <span class="sidebar-text ml-3 hidden md:block">Logout</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto">
+        <div class="flex flex-col md:flex-row h-full">
+            <!-- Profile Sidebar -->
+            <div class="w-full md:w-64 bg-white border-r border-gray-200">
+                <div class="p-6 border-b border-gray-200 text-center">
+                    <div class="bg-blue-100 p-4 rounded-full inline-block mb-4">
+                        <i data-feather="user" class="w-8 h-8 text-blue-500"></i>
+                    </div>
+                    <h2 class="text-xl font-bold">Unathi Basholo</h2>
+                    <p class="text-gray-500 text-sm">Member since September 2023</p>
+                </div>
+                <div class="p-4 space-y-1">
+                    <button class="nav-btn w-full text-left px-4 py-3 rounded-lg" onclick="showSection('personal-info')">
+                         Personal Information
+                    </button>
+                    <button class="nav-btn w-full text-left px-4 py-3 rounded-lg" onclick="showSection('privacy-settings')">
+                         Privacy & Security
+                    </button>
+                    <button class="nav-btn w-full text-left px-4 py-3 rounded-lg" onclick="showSection('notification-settings')">
+                         Notifications
+                    </button>
+                    <button class="nav-btn w-full text-left px-4 py-3 rounded-lg" onclick="showSection('preferences')">
+                         Preferences
+                    </button>
+                    <button class="nav-btn w-full text-left px-4 py-3 rounded-lg" onclick="showSection('emergency-contacts')">
+                         Emergency Contacts
+                    </button>
+                </div>
+            </div>
+
+            <!-- Profile Content -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <!-- Personal Information Section -->
+                <div id="personal-info" class="profile-section active">
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-xl font-semibold">Personal Information</h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex flex-col items-center mb-8">
+                                <div class="bg-gray-100 p-6 rounded-full mb-4">
+                                    <i data-feather="user" class="w-10 h-10 text-gray-400"></i>
+                                </div>
+                                <button class="text-blue-500 hover:text-blue-700 flex items-center">
+                                    <i data-feather="edit" class="w-4 h-4 mr-1"></i> Change Photo
+                                </button>
+                            </div>
+                            
+                            <form class="space-y-6" id="personal-info-form">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                        <input type="text" value="Unathi" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500" id="first-name">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                        <input type="text" value="Basholo" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500" id="last-name">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                                    <input type="text" value="unathibasholo123" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500" id="username">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                                    <input type="email" value="unathi.basholo@example.com" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500" id="email">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                    <input type="tel" value="+27 12 345 6789" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500" id="phone">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Home Address</label>
+                                    <input type="text" placeholder="Enter your address for location-based alerts" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500" id="address">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                                    <textarea rows="3" placeholder="Tell the community about yourself..." class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500" id="bio"></textarea>
+                                </div>
+                                
+                                <div class="pt-4">
+                                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center">
+                                        <i data-feather="save" class="w-5 h-5 mr-2"></i> Save Changes
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy & Security Section -->
+                <div id="privacy-settings" class="profile-section">
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-xl font-semibold">Privacy & Security</h2>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div class="flex justify-between items-center p-4 border border-gray-200 rounded-lg">
+                                <div>
+                                    <h3 class="font-medium">Anonymous Reporting</h3>
+                                    <p class="text-sm text-gray-500">Submit crime reports without revealing your identity</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="anonymous-reporting" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-4 border border-gray-200 rounded-lg">
+                                <div>
+                                    <h3 class="font-medium">Location Sharing</h3>
+                                    <p class="text-sm text-gray-500">Share your location for accurate crime alerts</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="location-sharing" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-4 border border-gray-200 rounded-lg">
+                                <div>
+                                    <h3 class="font-medium">Profile Visibility</h3>
+                                    <p class="text-sm text-gray-500">Allow other community members to see your profile</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="profile-visibility">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-4 border border-gray-200 rounded-lg">
+                                <div>
+                                    <h3 class="font-medium">Data Collection</h3>
+                                    <p class="text-sm text-gray-500">Help improve the app by sharing usage data</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="data-collection" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="pt-6 border-t border-gray-200">
+                                <h3 class="font-semibold text-lg mb-4">Account Security</h3>
+                                <div class="space-y-4">
+                                    <button onclick="changePassword()" class="w-full text-left p-4 border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center">
+                                        <div class="bg-blue-100 p-3 rounded-full mr-4">
+                                            <i data-feather="key" class="text-blue-500 w-5 h-5"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium">Change Password</h4>
+                                            <p class="text-sm text-gray-500">Update your account password</p>
+                                        </div>
+                                        <i data-feather="chevron-right" class="ml-auto text-gray-400 w-5 h-5"></i>
+                                    </button>
+                                    
+                                    <button onclick="enable2FA()" class="w-full text-left p-4 border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center">
+                                        <div class="bg-green-100 p-3 rounded-full mr-4">
+                                            <i data-feather="lock" class="text-green-500 w-5 h-5"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium">Two-Factor Authentication</h4>
+                                            <p class="text-sm text-gray-500">Add an extra layer of security</p>
+                                        </div>
+                                        <i data-feather="chevron-right" class="ml-auto text-gray-400 w-5 h-5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Settings Section -->
+                <div id="notification-settings" class="profile-section">
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-xl font-semibold">Notification Settings</h2>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="flex justify-between items-center p-4 border border-gray-200 rounded-lg">
+                                <div>
+                                    <h3 class="font-medium">Crime Alerts</h3>
+                                    <p class="text-sm text-gray-500">Get notified about crimes in your area</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="crime-alerts" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-4 border border-gray-200 rounded-lg">
+                                <div>
+                                    <h3 class="font-medium">Emergency Alerts</h3>
+                                    <p class="text-sm text-gray-500">Critical emergency notifications</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="emergency-alerts" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-4 border border-gray-200 rounded-lg">
+                                <div>
+                                    <h3 class="font-medium">Community Updates</h3>
+                                    <p class="text-sm text-gray-500">News and updates from your community</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="community-updates">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-4 border border-gray-200 rounded-lg">
+                                <div>
+                                    <h3 class="font-medium">Chat Notifications</h3>
+                                    <p class="text-sm text-gray-500">New messages in community chats</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="chat-notifications" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-4 border border-gray-200 rounded-lg">
+                                <div>
+                                    <h3 class="font-medium">Email Notifications</h3>
+                                    <p class="text-sm text-gray-500">Receive important updates via email</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="email-notifications">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preferences Section -->
+                <div id="preferences" class="profile-section">
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-xl font-semibold">Preferences</h2>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                                <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500" id="language-select">
+                                    <option value="en">English</option>
+                                    <option value="af">Afrikaans</option>
+                                    <option value="zu">Sotho</option>
+                                    <option value="xh">Xhosa</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Distance Unit</label>
+                                <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500" id="distance-unit">
+                                    <option value="km">Kilometers</option>
+                                </select>
+                            </div>
+                            
+                            <div class="flex justify-between items-center p-4 border border-gray-200 rounded-lg">
+                                <div>
+                                    <h3 class="font-medium">Dark Mode</h3>
+                                    <p class="text-sm text-gray-500">Use dark theme for the application</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="dark-mode-toggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Alert Radius</label>
+                                <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500" id="alert-radius">
+                                    <option value="1">1 km</option>
+                                    <option value="3">3 km</option>
+                                    <option value="5" selected>5 km</option>
+                                    <option value="10">10 km</option>
+                                    <option value="15">15 km</option>
+                                </select>
+                            </div>
+                            
+                            <div class="pt-4">
+                                <button onclick="savePreferences()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center">
+                                    <i data-feather="save" class="w-5 h-5 mr-2"></i> Save Preferences
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Contacts Section -->
+                <div id="emergency-contacts" class="profile-section">
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-xl font-semibold">Emergency Contacts</h2>
+                            <p class="text-gray-500">Manage contacts to be notified in case of emergency</p>
+                        </div>
+                        <div class="p-6 space-y-4" id="emergency-contacts-list">
+                            <!-- Contacts will be dynamically added here -->
+                        </div>
+                        <div class="p-6 border-t border-gray-200">
+                            <button onclick="showAddContactModal()" class="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-blue-500 hover:text-blue-500 hover:bg-blue-50 flex items-center justify-center">
+                                <i data-feather="plus" class="w-5 h-5 mr-2"></i> Add Emergency Contact
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Contact Modal -->
+    <div id="contact-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold" id="modal-title">Add Emergency Contact</h3>
+                <button onclick="closeContactModal()" class="text-gray-500 hover:text-gray-700">
+                    <i data-feather="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form id="contact-form" class="space-y-4">
+                <input type="hidden" id="contact-id">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <input type="text" id="contact-name" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <input type="tel" id="contact-phone" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Relationship</label>
+                    <input type="text" id="contact-relationship" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeContactModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                        Save Contact
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADDED: Global Language and Theme Management -->
+    <script>
+        // Global language and theme management
+        const languageStrings = {
+            en: {
+                // Navigation
+                dashboard: "Dashboard",
+                reportsFeed: "Reports Feed",
+                reportCrime: "Report Crime",
+                communityChat: "Community Chat",
+                safetyResources: "Safety Resources",
+                profile: "Profile",
+                logout: "Logout",
+                
+                // Profile Sections
+                personalInfo: "Personal Information",
+                privacySecurity: "Privacy & Security",
+                notifications: "Notifications",
+                preferences: "Preferences",
+                emergencyContacts: "Emergency Contacts",
+                
+                // Common
+                save: "Save",
+                cancel: "Cancel",
+                delete: "Delete",
+                edit: "Edit"
+            },
+            af: {
+                // Navigation
+                dashboard: "Dashboard",
+                reportsFeed: "Verslae Voer",
+                reportCrime: "Rapporteer Misdaad",
+                communityChat: "Gemeenskapsklets",
+                safetyResources: "Veiligheidsbronne",
+                profile: "Profiel",
+                logout: "Teken uit",
+                
+                // Profile Sections
+                personalInfo: "Persoonlike Inligting",
+                privacySecurity: "Privaatheid & Sekuriteit",
+                notifications: "Kennisgewings",
+                preferences: "Voorkeure",
+                emergencyContacts: "Noodkontakte",
+                
+                // Common
+                save: "Stoor",
+                cancel: "Kanselleer",
+                delete: "Verwyder",
+                edit: "Wysig"
+            },
+            zu: {
+                // Navigation
+                dashboard: "Ideshibhodi",
+                reportsFeed: "Imibiko Yokudla",
+                reportCrime: "Bika Ubugebengu",
+                communityChat: "Ingxoxo Yomphakathi",
+                safetyResources: "Izinsiza Zokuphepha",
+                profile: "Iphrofayili",
+                logout: "Phuma",
+                
+                // Profile Sections
+                personalInfo: "Ulwazi Lomuntu Siqu",
+                privacySecurity: "Ubumfihlo & Uvikeleko",
+                notifications: "Izaziso",
+                preferences: "Okuthandwayo",
+                emergencyContacts: "Oxhumana Nabo Ngezimo Eziphuthumayo",
+                
+                // Common
+                save: "Londoloza",
+                cancel: "Khansela",
+                delete: "Susa",
+                edit: "Hlela"
+            },
+            xh: {
+                // Navigation
+                dashboard: "Ideshibhodi",
+                reportsFeed: "Ingxelo Yokutya",
+                reportCrime: "Xela Ubundlobongela",
+                communityChat: "Ingxoxo Yoluntu",
+                safetyResources: "Izibonelelo Zokhuseleko",
+                profile: "Iprofayile",
+                logout: "Phuma",
+                
+                // Profile Sections
+                personalInfo: "Inkcazelo Yomntu",
+                privacySecurity: "Ubumfihlo & Ukhuseleko",
+                notifications: "Iindaba",
+                preferences: "Iintyiselo",
+                emergencyContacts: "Abadibana Nabo Ngexesha Lemeko Engaqhelekanga",
+                
+                // Common
+                save: "Gcina",
+                cancel: "Rhoxisa",
+                delete: "Cima",
+                edit: "Hlela"
+            }
+        };
+
+        // Apply language to current page
+        function applyLanguage(lang) {
+            const strings = languageStrings[lang] || languageStrings.en;
+            
+            // Update navigation
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (strings[key]) {
+                    element.textContent = strings[key];
+                }
+            });
+        }
+
+        // Apply theme to current page
+        function applyTheme(isDarkMode) {
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+        }
+
+        // Initialize theme and language on page load
+        function initializeGlobalSettings() {
+            const preferences = JSON.parse(localStorage.getItem('preferences')) || {};
+            const language = preferences.language || 'en';
+            const darkMode = preferences.darkMode || false;
+            
+            applyLanguage(language);
+            applyTheme(darkMode);
+        }
+    </script>
+
+    <script>
+        feather.replace();
+        
+        // Initialize settings from localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSettings();
+            loadEmergencyContacts();
+            showSection('personal-info');
+            initializeGlobalSettings();
+            
+            // ADDED: Sidebar toggle functionality
+            const sidebar = document.querySelector('nav');
+            const toggleBtn = document.getElementById('sidebar-toggle');
+            const toggleIcon = toggleBtn.querySelector('i');
+            
+            // Check if sidebar state is saved in localStorage
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            
+            // Set initial state
+            if (isCollapsed) {
+                collapseSidebar();
+            }
+            
+            toggleBtn.addEventListener('click', function() {
+                if (sidebar.classList.contains('sidebar-collapsed')) {
+                    expandSidebar();
+                } else {
+                    collapseSidebar();
+                }
+            });
+            
+            function collapseSidebar() {
+                sidebar.classList.add('sidebar-collapsed');
+                toggleIcon.setAttribute('data-feather', 'chevron-right');
+                feather.replace();
+                localStorage.setItem('sidebarCollapsed', 'true');
+            }
+            
+            function expandSidebar() {
+                sidebar.classList.remove('sidebar-collapsed');
+                toggleIcon.setAttribute('data-feather', 'chevron-left');
+                feather.replace();
+                localStorage.setItem('sidebarCollapsed', 'false');
+            }
+        });
+        
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.profile-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Add active class to clicked button
+            event.currentTarget.classList.add('active');
+        }
+        
+        function changePassword() {
+            const newPassword = prompt('Enter new password:');
+            if (newPassword) {
+                alert('Password changed successfully!');
+            }
+        }
+        
+        function enable2FA() {
+            alert('Two-factor authentication setup would open here');
+        }
+        
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('userEmail');
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // Initialize all settings from localStorage
+        function initializeSettings() {
+            // Personal Information
+            const personalInfo = JSON.parse(localStorage.getItem('personalInfo')) || {};
+            document.getElementById('first-name').value = personalInfo.firstName || 'Unathi';
+            document.getElementById('last-name').value = personalInfo.lastName || 'Basholo';
+            document.getElementById('username').value = personalInfo.username || 'unathibasholo123';
+            document.getElementById('email').value = personalInfo.email || 'unathi.basholo@example.com';
+            document.getElementById('phone').value = personalInfo.phone || '+27 12 345 6789';
+            document.getElementById('address').value = personalInfo.address || '';
+            document.getElementById('bio').value = personalInfo.bio || '';
+            
+            // Privacy & Security
+            const privacySettings = JSON.parse(localStorage.getItem('privacySettings')) || {};
+            document.getElementById('anonymous-reporting').checked = privacySettings.anonymousReporting !== false;
+            document.getElementById('location-sharing').checked = privacySettings.locationSharing !== false;
+            document.getElementById('profile-visibility').checked = privacySettings.profileVisibility || false;
+            document.getElementById('data-collection').checked = privacySettings.dataCollection !== false;
+            
+            // Notification Settings
+            const notificationSettings = JSON.parse(localStorage.getItem('notificationSettings')) || {};
+            document.getElementById('crime-alerts').checked = notificationSettings.crimeAlerts !== false;
+            document.getElementById('emergency-alerts').checked = notificationSettings.emergencyAlerts !== false;
+            document.getElementById('community-updates').checked = notificationSettings.communityUpdates || false;
+            document.getElementById('chat-notifications').checked = notificationSettings.chatNotifications !== false;
+            document.getElementById('email-notifications').checked = notificationSettings.emailNotifications || false;
+            
+            // Preferences
+            const preferences = JSON.parse(localStorage.getItem('preferences')) || {};
+            document.getElementById('language-select').value = preferences.language || 'en';
+            document.getElementById('distance-unit').value = preferences.distanceUnit || 'km';
+            document.getElementById('dark-mode-toggle').checked = preferences.darkMode || false;
+            document.getElementById('alert-radius').value = preferences.alertRadius || '5';
+            
+            // Apply dark mode if enabled
+            if (preferences.darkMode) {
+                document.body.classList.add('dark-mode');
+            }
+        }
+        
+        // Save preferences function
+        function savePreferences() {
+            const preferences = {
+                language: document.getElementById('language-select').value,
+                distanceUnit: document.getElementById('distance-unit').value,
+                darkMode: document.getElementById('dark-mode-toggle').checked,
+                alertRadius: document.getElementById('alert-radius').value
+            };
+            
+            localStorage.setItem('preferences', JSON.stringify(preferences));
+            
+            // Apply dark mode immediately
+            if (preferences.darkMode) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+            
+            // Apply language
+            applyLanguage(preferences.language);
+            
+            alert('Preferences saved successfully!');
+        }
+        
+        // Personal Information form submission
+        document.getElementById('personal-info-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const personalInfo = {
+                firstName: document.getElementById('first-name').value,
+                lastName: document.getElementById('last-name').value,
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value,
+                bio: document.getElementById('bio').value
+            };
+            
+            localStorage.setItem('personalInfo', JSON.stringify(personalInfo));
+            alert('Personal information saved successfully!');
+        });
+        
+        // Privacy settings auto-save
+        document.querySelectorAll('#privacy-settings input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const privacySettings = {
+                    anonymousReporting: document.getElementById('anonymous-reporting').checked,
+                    locationSharing: document.getElementById('location-sharing').checked,
+                    profileVisibility: document.getElementById('profile-visibility').checked,
+                    dataCollection: document.getElementById('data-collection').checked
+                };
+                
+                localStorage.setItem('privacySettings', JSON.stringify(privacySettings));
+            });
+        });
+        
+        // Notification settings auto-save
+        document.querySelectorAll('#notification-settings input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const notificationSettings = {
+                    crimeAlerts: document.getElementById('crime-alerts').checked,
+                    emergencyAlerts: document.getElementById('emergency-alerts').checked,
+                    communityUpdates: document.getElementById('community-updates').checked,
+                    chatNotifications: document.getElementById('chat-notifications').checked,
+                    emailNotifications: document.getElementById('email-notifications').checked
+                };
+                
+                localStorage.setItem('notificationSettings', JSON.stringify(notificationSettings));
+            });
+        });
+        
+        // Emergency Contacts functionality
+        function loadEmergencyContacts() {
+            const contacts = JSON.parse(localStorage.getItem('emergencyContacts')) || [
+                { id: 1, name: 'Sarah Wilson', phone: '+27 82 123 4567', relationship: 'Spouse' },
+                { id: 2, name: 'Mike Johnson', phone: '+27 83 234 5678', relationship: 'Neighbor' },
+                { id: 3, name: 'Emergency Services', phone: '10111', relationship: 'Police' }
+            ];
+            
+            const contactsList = document.getElementById('emergency-contacts-list');
+            contactsList.innerHTML = '';
+            
+            contacts.forEach(contact => {
+                const contactElement = document.createElement('div');
+                contactElement.className = 'emergency-contact bg-white border border-gray-200 rounded-lg p-4 flex justify-between items-center';
+                contactElement.innerHTML = `
+                    <div>
+                        <h3 class="font-bold">${contact.name}</h3>
+                        <p class="text-gray-600">${contact.phone}</p>
+                        <span class="text-xs text-gray-500">${contact.relationship}</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="editEmergencyContact(${contact.id})" class="text-blue-500 hover:text-blue-700 p-2 rounded-full hover:bg-blue-50">
+                            <i data-feather="edit" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="deleteEmergencyContact(${contact.id})" class="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50">
+                            <i data-feather="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+                contactsList.appendChild(contactElement);
+            });
+            
+            feather.replace();
+        }
+        
+        function showAddContactModal() {
+            document.getElementById('modal-title').textContent = 'Add Emergency Contact';
+            document.getElementById('contact-form').reset();
+            document.getElementById('contact-id').value = '';
+            document.getElementById('contact-modal').classList.remove('hidden');
+        }
+        
+        function closeContactModal() {
+            document.getElementById('contact-modal').classList.add('hidden');
+        }
+        
+        function editEmergencyContact(id) {
+            const contacts = JSON.parse(localStorage.getItem('emergencyContacts')) || [];
+            const contact = contacts.find(c => c.id === id);
+            
+            if (contact) {
+                document.getElementById('modal-title').textContent = 'Edit Emergency Contact';
+                document.getElementById('contact-id').value = contact.id;
+                document.getElementById('contact-name').value = contact.name;
+                document.getElementById('contact-phone').value = contact.phone;
+                document.getElementById('contact-relationship').value = contact.relationship;
+                document.getElementById('contact-modal').classList.remove('hidden');
+            }
+        }
+        
+        function deleteEmergencyContact(id) {
+            if (confirm('Are you sure you want to delete this emergency contact?')) {
+                const contacts = JSON.parse(localStorage.getItem('emergencyContacts')) || [];
+                const updatedContacts = contacts.filter(c => c.id !== id);
+                localStorage.setItem('emergencyContacts', JSON.stringify(updatedContacts));
+                loadEmergencyContacts();
+            }
+        }
+        
+        // Contact form submission
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('contact-id').value;
+            const name = document.getElementById('contact-name').value;
+            const phone = document.getElementById('contact-phone').value;
+            const relationship = document.getElementById('contact-relationship').value;
+            
+            let contacts = JSON.parse(localStorage.getItem('emergencyContacts')) || [];
+            
+            if (id) {
+                // Edit existing contact
+                const index = contacts.findIndex(c => c.id === parseInt(id));
+                if (index !== -1) {
+                    contacts[index] = { id: parseInt(id), name, phone, relationship };
+                }
+            } else {
+                // Add new contact
+                const newId = contacts.length > 0 ? Math.max(...contacts.map(c => c.id)) + 1 : 1;
+                contacts.push({ id: newId, name, phone, relationship });
+            }
+            
+            localStorage.setItem('emergencyContacts', JSON.stringify(contacts));
+            loadEmergencyContacts();
+            closeContactModal();
+
+        // Sidebar Collapse Functionality
+        document.addEventListener("DOMContentLoaded", () => {
+            feather.replace();
+            const toggleButton = document.getElementById("toggleSidebar");
+            const sidebar = document.getElementById("sidebar");
+            const sidebarTexts = sidebar.querySelectorAll(".sidebar-text");
+            const icon = toggleButton.querySelector("i");
+            toggleButton.addEventListener("click", () => {
+                sidebar.classList.toggle("collapsed");
+
+                if (sidebar.classList.contains("collapsed")) {
+                    sidebar.style.width = "4rem";
+                    sidebarTexts.forEach(text => text.classList.add("hidden"));
+                    icon.setAttribute("data-feather", "chevron-right");
+                } else {
+                    sidebar.style.width = "16rem";
+                    sidebarTexts.forEach(text => text.classList.remove("hidden"));
+                    icon.setAttribute("data-feather", "chevron-left");
+                }
+
+                feather.replace();
+            });
+        });
+        });
+    </script>
+</body>
+</html>

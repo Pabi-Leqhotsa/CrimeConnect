@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety Resources - CrimeConnect Shield Network</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        .sidebar-icon {
+            position: relative;
+        }
+        .sidebar-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+        .contact-card {
+            transition: transform 0.2s ease;
+        }
+        .contact-card:hover {
+            transform: translateY(-2px);
+        }
+        .emergency-btn {
+            transition: all 0.2s ease;
+        }
+        .emergency-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+        .tip-card {
+            transition: all 0.2s ease;
+        }
+        .tip-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex h-screen">
+    <!-- Sidebar Navigation -->
+    <nav id="sidebar" class="w-20 md:w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white flex flex-col transition-all duration-300">
+>
+        <div class="p-4 flex items-center justify-center md:justify-start border-b border-gray-700">
+            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-0 md:mr-3">
+                <i data-feather="shield"></i>
+            </div>
+            <h1 class="sidebar-text text-xl font-bold">CrimeConnect</h1>
+        </div>
+
+        <!-- Collapsible Toggle Button -->
+        <div class="px-4 py-2 border-b border-gray-700 flex items-center justify-center md:justify-end">
+            <button id="toggleSidebar" class="text-white focus:outline-none bg-gray-700 hover:bg-gray-600 rounded-full p-1 transition">
+               <i data-feather="chevron-left" class="w-5 h-5"></i>
+            </button>
+        </div>
+        
+        <ul class="flex-1 py-4 space-y-2">
+            <li>
+                <a href="dashboard.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Dashboard">
+                    <i data-feather="home" class="w-5 h-5"></i>
+                    <span class=" ml-3 sidebar-text">Dashboard</span>
+
+                </a>
+            </li>
+            <li>
+                <a href="reports_feed.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Reports Feed">
+                    <i data-feather="file-text" class="w-5 h-5"></i>
+                    <span class="ml-3 sidebar-text">Reports Feed</span>
+                </a>
+            </li>
+            <li>
+                <a href="report_crime.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Report Crime">
+                    <i data-feather="alert-circle" class="w-5 h-5"></i>
+                    <span class="ml-3 sidebar-text">Report Crime</span>
+                </a>
+            </li>
+            <li>
+                <a href="community_chat.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Community Chat">
+                    <i data-feather="message-square" class="w-5 h-5"></i>
+                    <span class="ml-3 sidebar-text">Community Chat</span>
+                </a>
+            </li>
+            <li>
+                <a href="safety_resources.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg bg-gray-700" data-tooltip="Safety Resources">
+                    <i data-feather="life-buoy" class="w-5 h-5"></i>
+                    <span class="ml-3 sidebar-text">Safety Resources</span>
+                </a>
+            </li>
+           
+        
+        </ul>
+        
+        <div class="p-4 border-t border-gray-700">
+            <a href="profile.html" class="sidebar-icon flex items-center p-3 rounded-lg hover:bg-gray-700" data-tooltip="Profile">
+                <i data-feather="user" class="w-5 h-5"></i>
+                <span class="ml-3 sidebar-text">Profile</span>
+            </a>
+            
+            <a href="login.html" onclick="handleLogout()" class="sidebar-icon flex items-center p-3 rounded-lg hover:bg-red-700 transition-colors duration-200" data-tooltip="Logout">
+                <i data-feather="log-out" class="w-5 h-5"></i>
+                <span class="ml-3 sidebar-text">Logout</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl p-6 mb-6">
+                <div class="flex items-center">
+                    <div class="bg-white p-3 rounded-full mr-4">
+                        <i data-feather="alert-triangle" class="text-red-500 w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">Safety Resources</h1>
+                        <p class="text-red-100">Emergency contacts, safety tips, and community resources</p>
+                    </div>
+                    <button class="ml-auto bg-white text-red-500 px-6 py-3 rounded-lg font-bold flex items-center emergency-btn" onclick="triggerEmergency()">
+                        <i data-feather="alert-triangle" class="w-5 h-5 mr-2"></i> EMERGENCY BUTTON
+                    </button>
+                </div>
+            </div>
+
+            <!-- Emergency Contacts -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold"> Emergency Contacts</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+                    <div class="contact-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                        <div class="flex items-center">
+                            <div class="bg-red-100 p-3 rounded-full mr-4">
+                                <i data-feather="shield" class="text-red-500 w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">Police Emergency</h3>
+                                <p class="text-gray-600">24/7 Police emergency line</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex justify-between items-center">
+                            <span class="text-2xl font-bold text-red-500">10111</span>
+                            <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center" onclick="callEmergency('10111')">
+                                <i data-feather="phone" class="w-4 h-4 mr-2"></i> Call
+                            </button>
+                        </div>
+                    </div>
+                    <div class="contact-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                        <div class="flex items-center">
+                            <div class="bg-green-100 p-3 rounded-full mr-4">
+                                <i data-feather="plus-circle" class="text-green-500 w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">Ambulance</h3>
+                                <p class="text-gray-600">Medical emergencies</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex justify-between items-center">
+                            <span class="text-2xl font-bold text-green-500">10177</span>
+                            <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center" onclick="callEmergency('10177')">
+                                <i data-feather="phone" class="w-4 h-4 mr-2"></i> Call
+                            </button>
+                        </div>
+                    </div>
+                    <div class="contact-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                        <div class="flex items-center">
+                            <div class="bg-yellow-100 p-3 rounded-full mr-4">
+                                <i data-feather="fire" class="text-yellow-500 w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">Fire Department</h3>
+                                <p class="text-gray-600">Fire emergencies</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex justify-between items-center">
+                            <span class="text-2xl font-bold text-yellow-500">10177</span>
+                            <button class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg flex items-center" onclick="callEmergency('10177')">
+                                <i data-feather="phone" class="w-4 h-4 mr-2"></i> Call
+                            </button>
+                        </div>
+                    </div>
+                    <div class="contact-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                        <div class="flex items-center">
+                            <div class="bg-blue-100 p-3 rounded-full mr-4">
+                                <i data-feather="home" class="text-blue-500 w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">Nearest Hospital</h3>
+                                <p class="text-gray-600">City General Hospital</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex justify-between items-center">
+                            <span class="text-xl font-bold text-blue-500">(021) 123-4567</span>
+                            <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center" onclick="callEmergency('0211234567')">
+                                <i data-feather="phone" class="w-4 h-4 mr-2"></i> Call
+                            </button>
+                        </div>
+                    </div>
+                    <div class="contact-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                        <div class="flex items-center">
+                            <div class="bg-purple-100 p-3 rounded-full mr-4">
+                                <i data-feather="eye" class="text-purple-500 w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">Crime Stop</h3>
+                                <p class="text-gray-600">Anonymous crime reporting</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex justify-between items-center">
+                            <span class="text-xl font-bold text-purple-500">08600 10111</span>
+                            <button class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center" onclick="callEmergency('0860010111')">
+                                <i data-feather="phone" class="w-4 h-4 mr-2"></i> Call
+                            </button>
+                        </div>
+                    </div>
+                    <div class="contact-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                        <div class="flex items-center">
+                            <div class="bg-pink-100 p-3 rounded-full mr-4">
+                                <i data-feather="users" class="text-pink-500 w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">Neighborhood Watch</h3>
+                                <p class="text-gray-600">Local community safety</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex justify-between items-center">
+                            <span class="text-xl font-bold text-pink-500">(021) 987-6543</span>
+                            <button class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg flex items-center" onclick="callEmergency('0219876543')">
+                                <i data-feather="phone" class="w-4 h-4 mr-2"></i> Call
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Safety Tips -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold"> Safety Tips & Guidelines</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
+                    <div class="tip-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                        <div class="bg-blue-100 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+                            <i data-feather="home" class="text-blue-500 w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-3">Home Security</h3>
+                        <ul class="space-y-2 text-gray-600">
+                            <li class="flex items-start">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
+                                <span>Always lock doors and windows</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
+                                <span>Use timer lights when away</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
+                                <span>Get to know your neighbors</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
+                                <span>Install security cameras</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tip-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                        <div class="bg-green-100 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+                            <i data-feather="user" class="text-green-500 w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-3">Personal Safety</h3>
+                        <ul class="space-y-2 text-gray-600">
+                            <li class="flex items-start">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
+                                <span>Stay aware of surroundings</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
+                                <span>Walk in well-lit areas</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
+                                <span>Keep valuables hidden</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
+                                <span>Trust your instincts</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tip-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                        <div class="bg-yellow-100 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+                            <i data-feather="car" class="text-yellow-500 w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-3">Vehicle Safety</h3>
+                        <ul class="space-y-2 text-gray-600">
+                            <li class="flex items-start">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
+                                <span>Lock car doors always</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
+                                <span>Park in well-lit areas</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
+                                <span>Hide valuables from view</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
+                                <span>Check backseat before entering</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tip-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                        <div class="bg-purple-100 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+                            <i data-feather="smartphone" class="text-purple-500 w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-3">Digital Safety</h3>
+                        <ul class="space-y-2 text-gray-600">
+                            <li class="flex items-start">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
+                                <span>Share location with trusted contacts</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
+                                <span>Keep phone charged</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
+                                <span>Save emergency contacts</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2 mt-0.5"></i>
+                                <span>Use safety apps</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Procedures -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold">Emergency Procedures</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+                    <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                        <h3 class="font-bold text-lg mb-4">In Case of Emergency:</h3>
+                        <ol class="space-y-4 text-gray-600">
+                            <li class="flex">
+                                <span class="bg-blue-100 text-blue-800 font-bold rounded-full h-6 w-6 flex items-center justify-center mr-3 flex-shrink-0">1</span>
+                                <span><strong>Stay Calm</strong> - Take deep breaths and assess the situation</span>
+                            </li>
+                            <li class="flex">
+                                <span class="bg-blue-100 text-blue-800 font-bold rounded-full h-6 w-6 flex items-center justify-center mr-3 flex-shrink-0">2</span>
+                                <span><strong>Call for Help</strong> - Dial emergency services immediately</span>
+                            </li>
+                            <li class="flex">
+                                <span class="bg-blue-100 text-blue-800 font-bold rounded-full h-6 w-6 flex items-center justify-center mr-3 flex-shrink-0">3</span>
+                                <span><strong>Move to Safety</strong> - Get to a secure location if possible</span>
+                            </li>
+                            <li class="flex">
+                                <span class="bg-blue-100 text-blue-800 font-bold rounded-full h-6 w-6 flex items-center justify-center mr-3 flex-shrink-0">4</span>
+                                <span><strong>Alert Community</strong> - Use the emergency button in the app</span>
+                            </li>
+                            <li class="flex">
+                                <span class="bg-blue-100 text-blue-800 font-bold rounded-full h-6 w-6 flex items-center justify-center mr-3 flex-shrink-0">5</span>
+                                <span><strong>Provide Details</strong> - Share location and situation details</span>
+                            </li>
+                        </ol>
+                    </div>
+                    <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                        <h3 class="font-bold text-lg mb-4">If You Witness a Crime:</h3>
+                        <ol class="space-y-4 text-gray-600">
+                            <li class="flex">
+                                <span class="bg-green-100 text-green-800 font-bold rounded-full h-6 w-6 flex items-center justify-center mr-3 flex-shrink-0">1</span>
+                                <span>Do not approach or intervene directly</span>
+                            </li>
+                            <li class="flex">
+                                <span class="bg-green-100 text-green-800 font-bold rounded-full h-6 w-6 flex items-center justify-center mr-3 flex-shrink-0">2</span>
+                                <span>Note physical descriptions and vehicle details</span>
+                            </li>
+                            <li class="flex">
+                                <span class="bg-green-100 text-green-800 font-bold rounded-full h-6 w-6 flex items-center justify-center mr-3 flex-shrink-0">3</span>
+                                <span>Remember time and location accurately</span>
+                            </li>
+                            <li class="flex">
+                                <span class="bg-green-100 text-green-800 font-bold rounded-full h-6 w-6 flex items-center justify-center mr-3 flex-shrink-0">4</span>
+                                <span>Call police immediately</span>
+                            </li>
+                            <li class="flex">
+                                <span class="bg-green-100 text-green-800 font-bold rounded-full h-6 w-6 flex items-center justify-center mr-3 flex-shrink-0">5</span>
+                                <span>Report through CrimeConnect app</span>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Community Resources -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold"> Community Resources</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                        <h3 class="font-bold text-lg mb-2">Neighborhood Watch</h3>
+                        <p class="text-gray-600 mb-4">Join local community patrols and safety programs</p>
+                        <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg">Learn More</button>
+                    </div>
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                        <h3 class="font-bold text-lg mb-2">Self-Defense Classes</h3>
+                        <p class="text-gray-600 mb-4">Free community self-defense training sessions</p>
+                        <button class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg">Find Classes</button>
+                    </div>
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                        <h3 class="font-bold text-lg mb-2">Safety Workshops</h3>
+                        <p class="text-gray-600 mb-4">Home security and personal safety workshops</p>
+                        <button class="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg">View Schedule</button>
+                    </div>
+                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-6">
+                        <h3 class="font-bold text-lg mb-2">Support Services</h3>
+                        <p class="text-gray-600 mb-4">Counseling and support for crime victims</p>
+                        <button class="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg">Get Help</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        feather.replace();
+        
+        function triggerEmergency() {
+            if (confirm(' Are you in immediate danger?\n\nThis will alert emergency services and nearby community members.')) {
+                alert('Emergency alert activated! Help is on the way.');
+                // In a real app, this would send a notification to emergency contacts
+            }
+        }
+        
+        function callEmergency(number) {
+            if (confirm(`Call ${number}?`)) {
+                alert(`Calling ${number}...\n\nIn a real app, this would initiate a phone call.`);
+                // In real mobile app: window.location.href = `tel:${number}`;
+            }
+        }
+        // Sidebar Collapse Functionality
+        document.addEventListener("DOMContentLoaded", () => {
+            feather.replace();
+            const toggleButton = document.getElementById("toggleSidebar");
+            const sidebar = document.getElementById("sidebar");
+            const sidebarTexts = sidebar.querySelectorAll(".sidebar-text");
+            const icon = toggleButton.querySelector("i");
+            toggleButton.addEventListener("click", () => {
+                sidebar.classList.toggle("collapsed");
+
+                if (sidebar.classList.contains("collapsed")) {
+                    sidebar.style.width = "4rem";
+                    sidebarTexts.forEach(text => text.classList.add("hidden"));
+                    icon.setAttribute("data-feather", "chevron-right");
+                } else {
+                    sidebar.style.width = "16rem";
+                    sidebarTexts.forEach(text => text.classList.remove("hidden"));
+                    icon.setAttribute("data-feather", "chevron-left");
+                }
+
+                feather.replace();
+            });
+        });
+    </script>
+</body>
+</html>

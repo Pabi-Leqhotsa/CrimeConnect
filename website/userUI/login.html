@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CrimeConnect </title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        .auth-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .auth-card {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .auth-btn {
+            transition: all 0.3s ease;
+        }
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .social-btn {
+            transition: all 0.3s ease;
+        }
+        .social-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .divider::before {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .icon-stroke {
+            stroke: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container min-h-screen flex items-center justify-center p-6">
+        <div class="auth-card bg-white rounded-2xl p-12 w-full max-w-md">
+            <!-- Logo -->
+            <div class="text-center mb-8">
+                <div class="flex justify-center mb-4">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i data-feather="shield" class="w-8 h-8 text-blue-600"></i>
+                    </div>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
+                <p class="text-gray-600">Sign in to CrimeConnect</p>
+            </div>
+
+            <!-- Login Form -->
+            <form class="space-y-6" onsubmit="handleLogin(event)">
+                <!-- Email Input -->
+                <div class="relative">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        <div class="flex items-center">
+                            <i data-feather="mail" class="w-4 h-4 mr-2 text-gray-500"></i>
+                            Email Address
+                        </div>
+                    </label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        required 
+                        class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        placeholder="Enter your email"
+                    >
+                    <div class="absolute left-3 top-11 transform -translate-y-1/2 text-gray-400">
+                        <i data-feather="mail" class="w-4 h-4"></i>
+                    </div>
+                </div>
+
+                <!-- Password Input -->
+                <div class="relative">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                        <div class="flex items-center">
+                            <i data-feather="lock" class="w-4 h-4 mr-2 text-gray-500"></i>
+                            Password
+                        </div>
+                    </label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        required 
+                        class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        placeholder="Enter your password"
+                    >
+                    <div class="absolute left-3 top-11 transform -translate-y-1/2 text-gray-400">
+                        <i data-feather="lock" class="w-4 h-4"></i>
+                    </div>
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="remember-me" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                    </label>
+                    <a href="#" onclick="forgotPassword()" class="text-sm text-blue-600 hover:text-blue-500 transition-colors duration-200 flex items-center">
+                        <i data-feather="key" class="w-4 h-4 mr-1"></i>
+                        Forgot password?
+                    </a>
+                </div>
+
+                <!-- Login Button -->
+                <button type="submit" class="auth-btn w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 flex items-center justify-center">
+                    <i data-feather="log-in" class="w-5 h-5 mr-2"></i>
+                    Sign In
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="relative my-8">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-2 bg-white text-gray-500">Or continue with</span>
+                </div>
+            </div>
+
+            <!-- Social Login Buttons -->
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <button onclick="socialLogin('google')" class="social-btn flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200">
+                    <i data-feather="at-sign" class="w-5 h-5 text-gray-700"></i>
+                </button>
+                <button onclick="socialLogin('facebook')" class="social-btn flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200">
+                    <i data-feather="facebook" class="w-5 h-5 text-blue-600"></i>
+                </button>
+                <button onclick="socialLogin('apple')" class="social-btn flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200">
+                    <i data-feather="smartphone" class="w-5 h-5 text-gray-800"></i>
+                </button>
+            </div>
+
+            <!-- Sign Up Link -->
+            <div class="text-center">
+                <p class="text-gray-600 flex items-center justify-center">
+                    <i data-feather="user-plus" class="w-4 h-4 mr-2"></i>
+                    Don't have an account? 
+                    <a href="sign_up.html" class="text-blue-600 hover:text-blue-500 font-medium transition-colors duration-200 ml-1">
+                        Sign up here
+                    </a>
+                </p>
+            </div>
+
+            <!-- Emergency Access -->
+            <div class="mt-8 p-6 bg-red-50 rounded-xl border-l-4 border-red-400">
+                <div class="flex items-start mb-3">
+                    <i data-feather="alert-triangle" class="w-5 h-5 text-red-600 mr-2 mt-0.5"></i>
+                    <h4 class="text-lg font-semibold text-red-800">Emergency Access</h4>
+                </div>
+                <p class="text-red-700 text-sm mb-4">
+                    Need immediate help or want to browse as guest?
+                </p>
+                <button onclick="emergencyAccess()" class="w-full bg-red-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200 flex items-center justify-center">
+                    <i data-feather="user" class="w-4 h-4 mr-2"></i>
+                
+                    <a href="home_page.html" class="text-white-600 hover:text-white-500 font-medium transition-colors duration-200 ml-1">
+                        Continue as guest
+                    </a>
+                </button>
+            </div>
+            
+            <!-- Admin Access - ADDED SECTION -->
+            <div class="mt-6 p-6 bg-purple-50 rounded-xl border-l-4 border-purple-400">
+                <div class="flex items-start mb-3">
+                    <i data-feather="settings" class="w-5 h-5 text-purple-600 mr-2 mt-0.5"></i>
+                    <h4 class="text-lg font-semibold text-purple-800">Admin Access</h4>
+                </div>
+                <p class="text-purple-700 text-sm mb-4">
+                    Authorized personnel only. Administrative access to system controls.
+                </p>
+                <button onclick="adminLogin()" class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-purple-700 transition-colors duration-200 flex items-center justify-center">
+                    <i data-feather="shield" class="w-4 h-4 mr-2"></i>
+                    Sign in as Admin
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADDED: JavaScript files -->
+    <script src="static/js/app.js"></script>
+    <script>
+        // Initialize Feather Icons
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+            
+            // Add enter key support for form submission
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            
+            function handleEnterKey(event) {
+                if (event.key === 'Enter') {
+                    handleLogin(event);
+                }
+            }
+            
+            emailInput.addEventListener('keypress', handleEnterKey);
+            passwordInput.addEventListener('keypress', handleEnterKey);
+        });
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('remember-me').checked;
+
+            // Basic validation
+            if (!email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            // Simulate login process
+            console.log(`Logging in with:\nEmail: ${email}\nRemember me: ${rememberMe}`);
+            
+            // Show loading state
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i data-feather="loader" class="w-5 h-5 mr-2 animate-spin"></i>Signing In...';
+            feather.replace();
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Set login state
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userEmail', email);
+                localStorage.removeItem('guestMode');
+                
+                alert('Login successful! Redirecting to dashboard...');
+                submitBtn.innerHTML = originalText;
+                feather.replace();
+                window.location.href = 'dashboard.html';
+            }, 1500);
+        }
+
+        function forgotPassword() {
+            const email = prompt('Enter your email to reset password:');
+            if (email) {
+                alert(`Password reset link sent to: ${email}`);
+                console.log(`Password reset requested for: ${email}`);
+            }
+        }
+
+        function socialLogin(provider) {
+            // Show loading state for social login
+            const buttons = document.querySelectorAll('.social-btn');
+            buttons.forEach(btn => btn.disabled = true);
+            
+            console.log(`Signing in with ${provider}...`);
+            
+            // Simulate social login process
+            setTimeout(() => {
+                alert(`Login successful via ${provider}! Redirecting to dashboard...`);
+                buttons.forEach(btn => btn.disabled = false);
+                localStorage.setItem('isLoggedIn', 'true');
+                window.location.href = 'dashboard.html';
+            }, 1000);
+        }
+
+        function emergencyAccess() {
+            if (confirm('Continue as guest?\n\nGuest users can:\n• View crime maps\n• Read safety resources\n• Submit anonymous reports\n\nBut cannot:\n• Join community chats\n• Save preferences\n• Receive personalized alerts')) {
+                // Set guest mode in local storage
+                localStorage.setItem('guestMode', 'true');
+                localStorage.setItem('isLoggedIn', 'true');
+                alert('Continuing as guest user...');
+                window.location.href = 'dashboard.html';
+            }
+        }
+
+        // NEW FUNCTION: Admin Login
+        function adminLogin() {
+            const adminEmail = prompt('Enter admin email:');
+            if (!adminEmail) return;
+            
+            const adminPassword = prompt('Enter admin password:');
+            if (!adminPassword) return;
+            
+            // Show loading state
+            const adminBtn = document.querySelector('button[onclick="adminLogin()"]');
+            const originalText = adminBtn.innerHTML;
+            adminBtn.innerHTML = '<i data-feather="loader" class="w-4 h-4 mr-2 animate-spin"></i>Verifying...';
+            feather.replace();
+            
+            // Simulate admin verification
+            setTimeout(() => {
+                // Set admin state
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('isAdmin', 'true');
+                localStorage.setItem('userEmail', adminEmail);
+                localStorage.removeItem('guestMode');
+                
+                alert('Admin authentication successful! Redirecting to admin dashboard...');
+                adminBtn.innerHTML = originalText;
+                feather.replace();
+                window.location.href = 'admin_dashboard.html';
+            }, 1500);
+        }
+
+        // Password visibility toggle
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Toggle eye icon
+            const eyeIcon = document.querySelector('.eye-icon');
+            if (type === 'text') {
+                eyeIcon.setAttribute('data-feather', 'eye-off');
+            } else {
+                eyeIcon.setAttribute('data-feather', 'eye');
+            }
+            feather.replace();
+        }
+
+        // Add password toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add eye icon to password field
+            const passwordField = document.querySelector('input[type="password"]');
+            const passwordContainer = passwordField.parentElement;
+            
+            const eyeButton = document.createElement('button');
+            eyeButton.type = 'button';
+            eyeButton.className = 'absolute right-3 top-11 transform -translate-y-1/2 text-gray-400 hover:text-gray-600';
+            eyeButton.innerHTML = '<i data-feather="eye" class="eye-icon w-4 h-4"></i>';
+            eyeButton.onclick = togglePasswordVisibility;
+            
+            passwordContainer.appendChild(eyeButton);
+            feather.replace();
+        });
+    </script>
+</body>
+</html>

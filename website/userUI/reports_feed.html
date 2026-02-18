@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports Feed - CrimeConnect Shield Network</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        .sidebar-icon {
+            position: relative;
+        }
+        .sidebar-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+        .report-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .report-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .crime-type {
+            transition: all 0.2s ease;
+        }
+        .crime-type:hover {
+            transform: scale(1.05);
+        }
+        .pagination-btn.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .stats-card {
+            transition: all 0.3s ease;
+        }
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+       
+        /* Collapsible sidebar styles */
+        .sidebar-collapsed {
+            width: 5rem !important;
+        }
+        .sidebar-collapsed .sidebar-text {
+            display: none !important;
+        }
+        .sidebar-collapsed .logo-text {
+            display: none !important;
+        }
+        .toggle-btn {
+            transition: all 0.3s ease;
+        }
+        .toggle-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        nav {
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex h-screen">
+    <!-- Sidebar Navigation -->
+    <nav class="w-20 md:w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white flex flex-col transition-all duration-300">
+        <div class="p-4 flex items-center justify-center md:justify-start border-b border-gray-700">
+            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-0 md:mr-3">
+                <i data-feather="shield"></i>
+            </div>
+            <h1 class="logo-text hidden md:block text-xl font-bold">CrimeConnect</h1>
+        </div>
+        
+        <!-- ADDED: Toggle Button -->
+        <div class="p-2 border-b border-gray-700 flex justify-center md:justify-end">
+            <button id="sidebar-toggle" class="toggle-btn p-2 rounded-lg hover:bg-gray-700 text-white">
+                <i data-feather="chevron-left" class="w-4 h-4"></i>
+            </button>
+        </div>
+        
+        <ul class="flex-1 py-4 space-y-2">
+            <li>
+                <a href="dashboard.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Dashboard">
+                    <i data-feather="home" class="w-5 h-5"></i>
+                    <span class="sidebar-text ml-3 hidden md:block">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="reports_feed.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg bg-gray-700" data-tooltip="Reports Feed">
+                    <i data-feather="file-text" class="w-5 h-5"></i>
+                    <span class="sidebar-text ml-3 hidden md:block">Reports Feed</span>
+                </a>
+            </li>
+            <li>
+                <a href="report_crime.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Report Crime">
+                    <i data-feather="alert-circle" class="w-5 h-5"></i>
+                    <span class="sidebar-text ml-3 hidden md:block">Report Crime</span>
+                </a>
+            </li>
+            <li>
+                <a href="community_chat.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Community Chat">
+                    <i data-feather="message-square" class="w-5 h-5"></i>
+                    <span class="sidebar-text ml-3 hidden md:block">Community Chat</span>
+                </a>
+            </li>
+            <li>
+                <a href="safety_resources.html" class="sidebar-icon flex items-center p-3 mx-2 rounded-lg hover:bg-gray-700" data-tooltip="Safety Resources">
+                    <i data-feather="life-buoy" class="w-5 h-5"></i>
+                    <span class="sidebar-text ml-3 hidden md:block">Safety Resources</span>
+                </a>
+            </li>
+        </ul>
+        
+        <div class="p-4 border-t border-gray-700 space-y-2">
+            <a href="profile.html" class="sidebar-icon flex items-center p-3 rounded-lg hover:bg-gray-700" data-tooltip="Profile">
+                <i data-feather="user" class="w-5 h-5"></i>
+                <span class="sidebar-text ml-3 hidden md:block">Profile</span>
+            </a>
+            <a href="login.html" onclick="handleLogout()" class="sidebar-icon flex items-center p-3 rounded-lg hover:bg-red-700 transition-colors duration-200" data-tooltip="Logout">
+                <i data-feather="log-out" class="w-5 h-5"></i>
+                <span class="sidebar-text ml-3 hidden md:block">Logout</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-6">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header with Stats -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+                        <i data-feather="file-text" class="w-6 h-6 mr-2 text-blue-500"></i>
+                        Crime Reports Feed
+                    </h1>
+                    <p class="text-gray-600">Browse and search through community crime reports</p>
+                </div>
+                <div class="flex flex-col md:flex-row gap-4 mt-4 md:mt-0">
+                    <div class="relative">
+                        <input type="text" id="search-reports" placeholder="Search reports..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full md:w-64">
+                        <i data-feather="search" class="absolute left-3 top-2.5 text-gray-400 w-5 h-5"></i>
+                    </div>
+                    <div class="flex gap-2">
+                        <select id="crime-type-filter" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            <option value="all">All Crime Types</option>
+                            <option value="theft">Theft/Robbery</option>
+                            <option value="assault">Assault/Violence</option>
+                            <option value="burglary">Burglary</option>
+                            <option value="vandalism">Vandalism</option>
+                            <option value="suspicious">Suspicious Activity</option>
+                            <option value="vehicle">Vehicle Crime</option>
+                            <option value="drugs">Drug Related</option>
+                        </select>
+                        <select id="time-filter" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            <option value="all">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="stats-card bg-white p-4 rounded-lg shadow-md border-l-4 border-blue-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Total Reports</p>
+                            <h3 class="text-2xl font-bold" id="total-reports">0</h3>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <i data-feather="file-text" class="text-blue-500 w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">+12 this week</span>
+                    </div>
+                </div>
+                
+                <div class="stats-card bg-white p-4 rounded-lg shadow-md border-l-4 border-red-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Active Cases</p>
+                            <h3 class="text-2xl font-bold" id="active-cases">0</h3>
+                        </div>
+                        <div class="bg-red-100 p-3 rounded-full">
+                            <i data-feather="alert-circle" class="text-red-500 w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="text-xs text-red-600 bg-red-100 px-2 py-1 rounded-full">Under investigation</span>
+                    </div>
+                </div>
+                
+                <div class="stats-card bg-white p-4 rounded-lg shadow-md border-l-4 border-green-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Resolved</p>
+                            <h3 class="text-2xl font-bold" id="resolved-cases">0</h3>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <i data-feather="check-circle" class="text-green-500 w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">63% success rate</span>
+                    </div>
+                </div>
+                
+                <div class="stats-card bg-white p-4 rounded-lg shadow-md border-l-4 border-purple-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Response Time</p>
+                            <h3 class="text-2xl font-bold" id="avg-response">14min</h3>
+                        </div>
+                        <div class="bg-purple-100 p-3 rounded-full">
+                            <i data-feather="clock" class="text-purple-500 w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="text-xs text-purple-600 bg-purple-100 px-2 py-1 rounded-full">Average</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crime Type Distribution -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <i data-feather="bar-chart-2" class="w-5 h-5 mr-2 text-blue-500"></i>
+                    Crime Type Distribution
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="flex items-center p-3 bg-red-50 rounded-lg">
+                        <div class="bg-red-100 p-2 rounded-full mr-3">
+                            <i data-feather="shopping-bag" class="text-red-500 w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Theft</p>
+                            <p class="font-semibold">0%</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-3 bg-purple-50 rounded-lg">
+                        <div class="bg-purple-100 p-2 rounded-full mr-3">
+                            <i data-feather="user-x" class="text-purple-500 w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Assault</p>
+                            <p class="font-semibold">0%</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-3 bg-yellow-50 rounded-lg">
+                        <div class="bg-yellow-100 p-2 rounded-full mr-3">
+                            <i data-feather="eye" class="text-yellow-500 w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Suspicious</p>
+                            <p class="font-semibold">0%</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-3 bg-blue-50 rounded-lg">
+                        <div class="bg-blue-100 p-2 rounded-full mr-3">
+                            <i data-feather="home" class="text-blue-500 w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Burglary</p>
+                            <p class="font-semibold">12%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports List -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="grid grid-cols-1 gap-6 p-6" id="reports-list">
+                    <!-- Reports will be loaded here dynamically -->
+                </div>
+
+                <!-- Pagination -->
+                <div class="border-t border-gray-200 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <button id="prev-page" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i data-feather="chevron-left" class="w-4 h-4 inline"></i> Previous
+                        </button>
+                        <div class="flex space-x-1" id="pagination-numbers">
+                            <!-- Pagination numbers will be generated here -->
+                        </div>
+                        <button id="next-page" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            Next <i data-feather="chevron-right" class="w-4 h-4 inline"></i>
+                        </button>
+                    </div>
+                    <div class="text-center mt-2 text-sm text-gray-500">
+                        Showing <span id="showing-start">1</span>-<span id="showing-end">8</span> of <span id="total-items">142</span> reports
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Report Details Modal -->
+    <div id="report-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold" id="modal-title">Report Details</h3>
+                <button onclick="closeReportModal()" class="text-gray-500 hover:text-gray-700">
+                    <i data-feather="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="modal-content">
+                <!-- Modal content will be loaded here -->
+            </div>
+        </div>
+    </div>
+          
+    <script>// Reports Feed Interactive Functionality
+let currentPage = 1;
+const itemsPerPage = 8;
+let allReports = [];
+let filteredReports = [];
+let currentSearchTerm = '';
+let currentCrimeType = 'all';
+let currentTimeFilter = 'all';
+
+// Initialize the reports feed
+function initializeReports() {
+    loadReportsFromStorage();
+    filteredReports = [...allReports];
+    
+    loadReports();
+    setupEventListeners();
+    updateStatistics();
+}
+
+// Load reports from localStorage
+function loadReportsFromStorage() {
+    const storedReports = localStorage.getItem('crimeReports');
+    
+    if (storedReports) {
+        allReports = JSON.parse(storedReports);
+    } else {
+        // If no reports exist, initialize with some sample data
+        allReports = getSampleReports();
+        localStorage.setItem('crimeReports', JSON.stringify(allReports));
+    }
+    
+    // Sort by timestamp (newest first)
+    allReports.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+}
+
+// Get sample reports for initial data
+function getSampleReports() {
+    return [
+        {
+            id: 1, 
+            type: 'theft', 
+            location: 'Main Street & 5th Avenue, Cape Town CBD',
+            area: 'Cape Town CBD',
+            coordinates: [-33.9180, 18.4230],
+            description: 'Car window broken and laptop stolen from vehicle. Suspect described as male, approximately 25-30 years old, wearing blue jacket and black cap.',
+            urgency: 'high',
+            time: '2 hours ago',
+            date: '2024-01-15 14:30',
+            status: 'under investigation',
+            reporter: 'User #7382',
+            officer: 'Officer #45',
+            updates: 'Police have collected CCTV footage from nearby businesses',
+            evidence: 'CCTV available, witness statements recorded',
+            timestamp: new Date('2024-01-15T14:30:00').toISOString()
+        },
+        {
+            id: 2, 
+            type: 'suspicious', 
+            location: 'Oak Avenue Park, Gardens',
+            area: 'Gardens',
+            coordinates: [-33.9260, 18.4150],
+            description: 'Unknown person loitering near playground for extended period. Acting nervously and taking photos of children.',
+            urgency: 'medium',
+            time: '5 hours ago',
+            date: '2024-01-15 11:45',
+            status: 'patrol increased',
+            reporter: 'User #6291',
+            officer: 'Officer #23',
+            updates: 'Regular patrols in the area have been increased',
+            evidence: 'Multiple witness reports, photo description available',
+            timestamp: new Date('2024-01-15T11:45:00').toISOString()
+        }
+    ];
+}
+
+// Load reports for current page
+function loadReports() {
+    const reportsList = document.getElementById('reports-list');
+    reportsList.innerHTML = '';
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentReports = filteredReports.slice(startIndex, endIndex);
+
+    if (currentReports.length === 0) {
+        reportsList.innerHTML = `
+            <div class="text-center py-8">
+                <i data-feather="search" class="w-12 h-12 mx-auto text-gray-400 mb-4"></i>
+                <p class="text-gray-500">No reports found matching your criteria</p>
+                <p class="text-sm text-gray-400 mt-2">Be the first to report an incident in your area</p>
+                <button onclick="location.href='report_crime.html'" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                    <i data-feather="plus" class="w-4 h-4 inline mr-1"></i> Report Incident
+                </button>
+            </div>
+        `;
+        feather.replace();
+        return;
+    }
+
+    currentReports.forEach(report => {
+        const reportElement = createReportElement(report);
+        reportsList.appendChild(reportElement);
+    });
+
+    updatePagination();
+    feather.replace();
+}
+
+// Create report card element
+function createReportElement(report) {
+    const reportDiv = document.createElement('div');
+    reportDiv.className = 'report-card bg-white border border-gray-200 rounded-lg p-6';
+    reportDiv.innerHTML = `
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="crime-type ${getCrimeTypeClass(report.type)} text-xs font-semibold px-3 py-1 rounded-full uppercase flex items-center">
+                    <i data-feather="${getCrimeIcon(report.type)}" class="w-3 h-3 mr-1"></i> ${report.type}
+                </span>
+            </div>
+            <span class="text-xs text-gray-500">${report.time}</span>
+        </div>
+        <div class="flex items-center text-sm text-gray-600 mb-4">
+            <i data-feather="map-pin" class="w-4 h-4 mr-1"></i>
+            <span>${report.location}</span>
+        </div>
+        <p class="text-gray-700 mb-4 line-clamp-2">${report.description}</p>
+        <div class="flex justify-between items-center">
+            <span class="${getUrgencyClass(report.urgency)} text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                ${report.urgency}
+            </span>
+            <div class="flex items-center space-x-4">
+                <span class="text-xs text-gray-500 flex items-center">
+                    <i data-feather="user" class="w-3 h-3 mr-1"></i> ${report.reporter}
+                </span>
+                <button onclick="viewReportDetails(${report.id})" class="text-xs text-blue-500 hover:text-blue-700 flex items-center">
+                    <i data-feather="eye" class="w-3 h-3 mr-1"></i> View Details
+                </button>
+            </div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-gray-100">
+            <div class="flex justify-between items-center text-xs text-gray-500">
+                <span>Status: ${report.status}</span>
+                <span>Area: ${report.area}</span>
+            </div>
+        </div>
+    `;
+    return reportDiv;
+}
+
+// Get crime type CSS class
+function getCrimeTypeClass(type) {
+    const classes = {
+        'theft': 'bg-red-100 text-red-800',
+        'assault': 'bg-purple-100 text-purple-800',
+        'burglary': 'bg-blue-100 text-blue-800',
+        'vandalism': 'bg-yellow-100 text-yellow-800',
+        'suspicious': 'bg-orange-100 text-orange-800',
+        'vehicle': 'bg-indigo-100 text-indigo-800',
+        'drugs': 'bg-pink-100 text-pink-800'
+    };
+    return classes[type] || 'bg-gray-100 text-gray-800';
+}
+
+// Get crime icon
+function getCrimeIcon(type) {
+    const icons = {
+        'theft': 'shopping-bag',
+        'assault': 'user-x',
+        'burglary': 'home',
+        'vandalism': 'alert-octagon',
+        'suspicious': 'eye',
+        'vehicle': 'truck',
+        'drugs': 'alert-triangle'
+    };
+    return icons[type] || 'alert-circle';
+}
+
+// Get urgency CSS class
+function getUrgencyClass(urgency) {
+    const classes = {
+        'low': 'bg-green-100 text-green-800',
+        'medium': 'bg-yellow-100 text-yellow-800',
+        'high': 'bg-orange-100 text-orange-800',
+        'emergency': 'bg-red-100 text-red-800'
+    };
+    return classes[urgency] || 'bg-gray-100 text-gray-800';
+}
+
+// Update pagination
+function updatePagination() {
+    const totalPages = Math.ceil(filteredReports.length / itemsPerPage);
+    const paginationNumbers = document.getElementById('pagination-numbers');
+    const prevButton = document.getElementById('prev-page');
+    const nextButton = document.getElementById('next-page');
+    const showingStart = document.getElementById('showing-start');
+    const showingEnd = document.getElementById('showing-end');
+    const totalItems = document.getElementById('total-items');
+
+    // Update showing range
+    const startItem = (currentPage - 1) * itemsPerPage + 1;
+    const endItem = Math.min(currentPage * itemsPerPage, filteredReports.length);
+    showingStart.textContent = startItem;
+    showingEnd.textContent = endItem;
+    totalItems.textContent = filteredReports.length;
+
+    // Update button states
+    prevButton.disabled = currentPage === 1;
+    nextButton.disabled = currentPage === totalPages;
+
+    // Generate pagination numbers
+    paginationNumbers.innerHTML = '';
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        const pageButton = document.createElement('button');
+        pageButton.className = `px-4 py-2 border border-gray-300 rounded-md text-sm font-medium pagination-btn ${
+            i === currentPage ? 'active bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-50'
+        }`;
+        pageButton.textContent = i;
+        pageButton.onclick = () => goToPage(i);
+        paginationNumbers.appendChild(pageButton);
+    }
+}
+
+// Go to specific page
+function goToPage(page) {
+    currentPage = page;
+    loadReports();
+}
+
+// Next page
+function nextPage() {
+    const totalPages = Math.ceil(filteredReports.length / itemsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        loadReports();
+    }
+}
+
+// Previous page
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        loadReports();
+    }
+}
+
+// Search functionality
+function searchReports() {
+    currentSearchTerm = document.getElementById('search-reports').value.toLowerCase();
+    applyFilters();
+}
+
+// Apply all filters
+function applyFilters() {
+    currentCrimeType = document.getElementById('crime-type-filter').value;
+    currentTimeFilter = document.getElementById('time-filter').value;
+
+    filteredReports = allReports.filter(report => {
+        // Search filter
+        const matchesSearch = !currentSearchTerm || 
+            report.description.toLowerCase().includes(currentSearchTerm) ||
+            report.location.toLowerCase().includes(currentSearchTerm) ||
+            report.area.toLowerCase().includes(currentSearchTerm) ||
+            report.type.toLowerCase().includes(currentSearchTerm);
+
+        // Crime type filter
+        const matchesType = currentCrimeType === 'all' || report.type === currentCrimeType;
+
+        // Time filter (simplified for demo)
+        const matchesTime = currentTimeFilter === 'all' || true; // In real app, would filter by date
+
+        return matchesSearch && matchesType && matchesTime;
+    });
+
+    currentPage = 1;
+    loadReports();
+    updateStatistics();
+}
+
+// Clear all filters
+function clearFilters() {
+    document.getElementById('search-reports').value = '';
+    document.getElementById('crime-type-filter').value = 'all';
+    document.getElementById('time-filter').value = 'all';
+    applyFilters();
+}
+
+// Update statistics
+function updateStatistics() {
+    document.getElementById('total-reports').textContent = allReports.length;
+    
+    const activeCases = allReports.filter(r => 
+        r.status.includes('investigation') || 
+        r.status.includes('surveillance') ||
+        r.status.includes('new report') ||
+        r.status.includes('pending')
+    ).length;
+    document.getElementById('active-cases').textContent = activeCases;
+    
+    const resolvedCases = allReports.filter(r => 
+        r.status.includes('resolved') || 
+        r.status.includes('closed') ||
+        r.status.includes('completed')
+    ).length;
+    document.getElementById('resolved-cases').textContent = resolvedCases;
+    
+    // Calculate average response time (simulated)
+    const avgResponse = Math.floor(Math.random() * 10) + 10;
+    document.getElementById('avg-response').textContent = `${avgResponse}min`;
+}
+
+// View report details
+function viewReportDetails(reportId) {
+    const report = allReports.find(r => r.id === reportId);
+    if (!report) return;
+
+    document.getElementById('modal-title').textContent = `Report #${report.id} Details`;
+    
+    const modalContent = document.getElementById('modal-content');
+    modalContent.innerHTML = `
+        <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Crime Type</label>
+                    <p class="mt-1 text-sm text-gray-900 capitalize">${report.type}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Urgency Level</label>
+                    <span class="mt-1 inline-block ${getUrgencyClass(report.urgency)} text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize">
+                        ${report.urgency}
+                    </span>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Location</label>
+                <p class="mt-1 text-sm text-gray-900">${report.location}</p>
+                <p class="text-xs text-gray-500 mt-1">Area: ${report.area}</p>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Description</label>
+                <p class="mt-1 text-sm text-gray-900">${report.description}</p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Reported By</label>
+                    <p class="mt-1 text-sm text-gray-900">${report.reporter}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Assigned Officer</label>
+                    <p class="mt-1 text-sm text-gray-900">${report.officer}</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Date & Time</label>
+                    <p class="mt-1 text-sm text-gray-900">${report.date}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Current Status</label>
+                    <p class="mt-1 text-sm text-gray-900 capitalize">${report.status}</p>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Latest Updates</label>
+                <p class="mt-1 text-sm text-gray-900">${report.updates}</p>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Evidence Collected</label>
+                <p class="mt-1 text-sm text-gray-900">${report.evidence}</p>
+            </div>
+        </div>
+        
+        <div class="mt-6 flex justify-end space-x-3">
+            <button onclick="closeReportModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                Close
+            </button>
+            <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                <i data-feather="flag" class="w-4 h-4 inline mr-1"></i> Follow Case
+            </button>
+        </div>
+    `;
+
+    document.getElementById('report-modal').classList.remove('hidden');
+    feather.replace();
+}
+
+// Close report modal
+function closeReportModal() {
+    document.getElementById('report-modal').classList.add('hidden');
+}
+
+// Setup event listeners
+function setupEventListeners() {
+    document.getElementById('search-reports').addEventListener('input', searchReports);
+    document.getElementById('crime-type-filter').addEventListener('change', applyFilters);
+    document.getElementById('time-filter').addEventListener('change', applyFilters);
+    document.getElementById('prev-page').addEventListener('click', previousPage);
+    document.getElementById('next-page').addEventListener('click', nextPage);
+}
+
+// Refresh reports (for dashboard integration)
+function refreshReports() {
+    loadReportsFromStorage();
+    applyFilters();
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeReports();
+});</script>
+
+    <!-- ADDED: Sidebar Toggle Functionality -->
+    <script>
+        // Sidebar toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.querySelector('nav');
+            const toggleBtn = document.getElementById('sidebar-toggle');
+            const toggleIcon = toggleBtn.querySelector('i');
+            
+            // Check if sidebar state is saved in localStorage
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            
+            // Set initial state
+            if (isCollapsed) {
+                collapseSidebar();
+            }
+            
+            toggleBtn.addEventListener('click', function() {
+                if (sidebar.classList.contains('sidebar-collapsed')) {
+                    expandSidebar();
+                } else {
+                    collapseSidebar();
+                }
+            });
+            
+            function collapseSidebar() {
+                sidebar.classList.add('sidebar-collapsed');
+                toggleIcon.setAttribute('data-feather', 'chevron-right');
+                feather.replace();
+                localStorage.setItem('sidebarCollapsed', 'true');
+            }
+            
+            function expandSidebar() {
+                sidebar.classList.remove('sidebar-collapsed');
+                toggleIcon.setAttribute('data-feather', 'chevron-left');
+                feather.replace();
+                localStorage.setItem('sidebarCollapsed', 'false');
+            }
+        });
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('userEmail');
+                window.location.href = 'login.html';
+            }
+        }
+    </script>
+
+    <script src="static/js/reports.js"></script>
+    <script>
+        feather.replace();
+    </script>
+    
+   
+</script>
+</body>
+</html>
